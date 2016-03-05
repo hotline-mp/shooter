@@ -12,6 +12,9 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-std=c++11" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
@@ -38,7 +41,14 @@
 			<Add library="libsfml-system" />
 			<Add directory="../SFML-2.3.2/lib" />
 		</Linker>
+		<Unit filename="Entity.cpp" />
+		<Unit filename="Entity.hpp" />
+		<Unit filename="Game.cpp" />
+		<Unit filename="Game.hpp" />
+		<Unit filename="Player.cpp" />
+		<Unit filename="Player.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="sans.ttf" />
 		<Extensions>
 			<code_completion />
 			<envvars />
