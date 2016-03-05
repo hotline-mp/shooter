@@ -1,7 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <SFML/Graphics.hpp>
+#include <libconfig.h++>
+#include <string>
+#include <unordered_map>
 #include "Player.hpp"
+#include "GameState.hpp"
+#include "Menu.hpp"
 
 const int screen_w = 800;
 const int screen_h = 600;
@@ -9,10 +15,33 @@ const int screen_h = 600;
 class Game
 {
 	private:
+		GameState game_state = Playing;
+		GameState next_game_state = Playing;
+
+		void playingLoop();
+		void playingHandleEvent(sf::Event &event);
+		void keysMenuLoop();
+		void keysMenuHandleEvent(sf::Event &event);
+
+		Menu keysMenu;
+
 		Player player;
 		sf::RenderWindow window;
+
 		void update();
 		void updateDirection();
+
+		int getConfig();
+		int saveConfig();
+		libconfig::Config cfg;
+		std::unordered_map<std::string, int> keys;
+
+		sf::Font font;
+		sf::Text text;
+
+		// for key config
+		bool waiting_for_input = false;
+
 	public:
 		Game();
 		int run();
