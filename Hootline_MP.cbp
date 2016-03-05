@@ -32,10 +32,11 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++11" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add option="-std=c++11" />
 			<Add directory="../SFML-2.3.2/include" />
+			<Add directory="../libconfig/include" />
 		</Compiler>
 		<Linker>
 			<Add library="libsfml-graphics" />
@@ -43,6 +44,7 @@
 			<Add library="libsfml-system" />
 			<Add library="config++" />
 			<Add directory="../SFML-2.3.2/lib" />
+			<Add directory="../libconfig/lib" />
 		</Linker>
 		<Unit filename="Entity.cpp" />
 		<Unit filename="Entity.hpp" />

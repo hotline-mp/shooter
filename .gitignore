@@ -3,3 +3,5 @@ obj/
 shooter
 *.d
 *.o
+*.layout
+*.depend
