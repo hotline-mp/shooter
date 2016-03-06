@@ -2,9 +2,14 @@
 #define GAME_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Clock.hpp>
+
 #include <libconfig.h++>
+
 #include <string>
 #include <unordered_map>
+
 #include "Player.hpp"
 #include "GameState.hpp"
 #include "Menu.hpp"
@@ -25,7 +30,6 @@ class Game
 
 		Menu keysMenu;
 
-		Player player;
 		sf::RenderWindow window;
 
 		void update();
@@ -41,6 +45,14 @@ class Game
 
 		// for key config
 		bool waiting_for_input = false;
+
+		std::vector< std::vector<sf::Vector2f> > map;
+
+		sf::Vector2f camera;
+
+		sf::Clock clock;
+
+		Player player;
 
 	public:
 		Game();

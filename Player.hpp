@@ -8,8 +8,8 @@ const float player_r = 30.f;
 class Player : public Entity
 {
 	public:
-		Player();
-		void draw(sf::RenderWindow &window);
+		Player(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera);
+		void draw();
 	private:
 		sf::CircleShape shape{player_r};
 };

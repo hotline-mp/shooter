@@ -5,9 +5,7 @@
 #include <vector>
 #include "KeyNames.hpp"
 
-using namespace libconfig;
-
-Game::Game() {
+Game::Game() : player(clock, window, camera) {
     window.create(sf::VideoMode(screen_w, screen_h), "shooter demo",
 			sf::Style::Titlebar | sf::Style::Close);
 	window.setVerticalSyncEnabled(true);
@@ -56,73 +54,18 @@ void Game::updateDirection() {
 
 void Game::update() {
 	updateDirection();
-	sf::Vector2i localPosition = sf::Mouse::getPosition(window);
-	sf::Vector2f v(
-			localPosition.x - player.position.x - player_r,
-			localPosition.y - player.position.y - player_r);
+	sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
+	sf::Vector2f playerSizeVec(player_r, player_r);
+	sf::Vector2f v(mousePosition - player.position - playerSizeVec - camera);
 	float len = sqrt(pow(v.x, 2) + pow(v.y, 2));
+	// vector unitari que va del centre del jugador
+	// en direcció a on apuntem
 	player.facing = v / len;
-}
-
-const char* cfg_filename = "shooter.cfg";
-
-int Game::getConfig() {
-	// default config
-	keys["up"] = sf::Keyboard::W;
-	keys["down"] = sf::Keyboard::S;
-	keys["left"] = sf::Keyboard::A;
-	keys["right"] = sf::Keyboard::D;
-
-	try
-	{
-		cfg.readFile(cfg_filename);
-	}
-	catch(const FileIOException &fioex)
-	{
-		/* el fitxer no existia, probablement per que es la primera
-		 * vegada que es juga, ignorar */
-		return 1;
-	}
-	catch(const ParseException &pex)
-	{
-		// TODO: error grafic
-		std::cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine()
-			<< " - " << pex.getError() << std::endl;
-		return 1;
-	}
-
-	std::vector<std::string> to_read {"up", "down", "left", "right"};
-	for (std::string key : to_read) {
-		try {
-			keys[key] = cfg.lookup(key);
-		} catch(const SettingNotFoundException &nfex) {
-			/* si no esta a la config no pasa res,
-			 * ja hem definit el valor per defecte abans */
-		}
-	}
-	return 0;
-}
-
-int Game::saveConfig() {
-	Setting &root = cfg.getRoot();
-	for (auto& kv : keys) {
-		if (root.exists(kv.first)) {
-			root.remove(kv.first);
-		}
-		root.add(kv.first, Setting::TypeInt) = kv.second;
-	}
-
-	try
-	{
-		cfg.writeFile(cfg_filename);
-	}
-	catch(const FileIOException &fioex)
-	{
-		// TODO: error grafic
-		std::cerr << "I/O error while writing file: " << cfg_filename << std::endl;
-		return 1;
-	}
-	return 0;
+	player.update();
+	// La camera ha de tenir el jugador sempre al centre de la pantalla, per tant:
+	// pos en pantalla = pos_jugador + camera = centre_pantalla - tamany_jugador
+	// camera = centre_pantalla - tamany_jugador - pos_jugador
+	camera = sf::Vector2f(screen_w/2, screen_h/2) - playerSizeVec - player.position;
 }
 
 void Game::playingLoop() {
@@ -135,20 +78,31 @@ void Game::playingLoop() {
     facing_dbg.setFillColor(sf::Color::Red);
 
 	moving_dbg.setPosition(
-			player.position.x + player_r + player.moving.x * player_r - dbg_r,
-			player.position.y + player_r + player.moving.y * player_r - dbg_r
+			player.position.x + player_r + player.moving.x * player_r - dbg_r + camera.x,
+			player.position.y + player_r + player.moving.y * player_r - dbg_r + camera.y
 			);
 	facing_dbg.setPosition(
-			player.position.x + player_r + player.facing.x * player_r - dbg_r,
-			player.position.y + player_r + player.facing.y * player_r - dbg_r
+			player.position.x + player_r + player.facing.x * player_r - dbg_r + camera.x,
+			player.position.y + player_r + player.facing.y * player_r - dbg_r + camera.y
 			);
 
 	window.clear(sf::Color::Cyan);
-	//text.setString("hullo " + std::to_string(player.position.y));
+	//text.setPosition(0, 300);
+	//text.setString("hullo " + std::to_string(camera.x));
 	//window.draw(text);
-	player.draw(window);
+	player.draw();
 	window.draw(moving_dbg);
 	window.draw(facing_dbg);
+	for (std::vector<sf::Vector2f> points : map) {
+		sf::ConvexShape polygon;
+		polygon.setPointCount(points.size());
+		int i=0;
+		for (sf::Vector2f point : points) {
+			polygon.setPoint(i, point + camera);
+			i++;
+		}
+		window.draw(polygon);
+	}
 }
 
 void Game::playingHandleEvent(sf::Event &event) {
@@ -235,6 +189,15 @@ int Game::run() {
 	text.setCharacterSize(24);
 	text.setColor(sf::Color::Black);
 
+	camera = sf::Vector2f(0, 0);
+
+	map.resize(1);
+	map[0].resize(4);
+	map[0][0] = sf::Vector2f(5, 5);
+	map[0][1] = sf::Vector2f(50, 10);
+	map[0][2] = sf::Vector2f(60, 50);
+	map[0][3] = sf::Vector2f(5, 60);
+
 	player.setPosition(screen_w/2-player_r, screen_h/2-player_r);
 
     while (window.isOpen())
@@ -242,9 +205,9 @@ int Game::run() {
         sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 window.close();
-			else {
+			} else {
 				switch (game_state) {
 					case Playing:
 						playingHandleEvent(event);
