@@ -13,6 +13,7 @@
 #include "Player.hpp"
 #include "GameState.hpp"
 #include "Menu.hpp"
+#include "Bala.hpp"
 
 const int screen_w = 800;
 const int screen_h = 600;
@@ -34,6 +35,7 @@ class Game
 
 		void update();
 		void updateDirection();
+		sf::Vector2f bulletSpawnPosition();
 
 		int getConfig();
 		int saveConfig();
@@ -47,6 +49,8 @@ class Game
 		bool waiting_for_input = false;
 
 		std::vector< std::vector<sf::Vector2f> > map;
+
+		std::vector<Bala> bullets;
 
 		sf::Vector2f camera;
 
