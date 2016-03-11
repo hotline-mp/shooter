@@ -3,8 +3,6 @@
 
 #include "Entity.hpp"
 
-const float player_r = 30.f;
-
 class Player : public Entity
 {
 	public:
