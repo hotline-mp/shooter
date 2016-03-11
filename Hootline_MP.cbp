@@ -57,8 +57,11 @@
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.hpp" />
 		<Unit filename="config.cpp" />
+		<Unit filename="keyMenu.cpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="sans.ttf" />
+		<Unit filename="vector.cpp" />
+		<Unit filename="vector.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
