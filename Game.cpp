@@ -108,17 +108,17 @@ void Game::playingLoop() {
 	player.draw();
 	window.draw(moving_dbg);
 	window.draw(facing_dbg);
-	for (std::vector<sf::Vector2f> points : map) {
+	for (auto &points : map) {
 		sf::ConvexShape polygon;
 		polygon.setPointCount(points.size());
 		int i=0;
-		for (sf::Vector2f point : points) {
+		for (auto &point : points) {
 			polygon.setPoint(i, point + camera);
 			i++;
 		}
 		window.draw(polygon);
 	}
-	for (Bala bullet : bullets) {
+	for (Bala &bullet : bullets) {
         bullet.draw();
 	}
 }
