@@ -1,7 +1,7 @@
 #include "Player.hpp"
 
-Player::Player(sf::RenderWindow &window, sf::Vector2f &camera) :
-	Entity(window, camera)
+Player::Player(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera) :
+	Entity(clock, window, camera)
 {
 	if(!texture.loadFromFile("player.png"));
 	sprite.setTexture(texture);

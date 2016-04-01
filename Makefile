@@ -8,7 +8,7 @@ LD = g++
 INCLUDES =
 LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lconfig++
 TARGET = shooter
-OBJECTS = main.o Entity.o Player.o Game.o Menu.o config.o keyMenu.o vector.o
+OBJECTS = main.o Entity.o Player.o Game.o Bala.o Menu.o config.o keyMenu.o vector.o
 
 %.o : %.cpp
 	$(CXX) -MT $@ -MMD -MP $(CXXFLAGS) $(INCLUDES) -c $< -o $@

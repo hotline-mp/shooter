@@ -5,3 +5,4 @@ shooter
 *.o
 *.layout
 *.depend
+shooter.cfg

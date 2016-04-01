@@ -1,7 +1,8 @@
+#include <iostream>
 #include "Bala.hpp"
 
-Bala::Bala(sf::RenderWindow &window, sf::Vector2f &camera) :
-	Entity(window, camera)
+Bala::Bala(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera) :
+	Entity(clock, window, camera, 0.0006f)
 {
 	shape.setFillColor(sf::Color::Black);
 }
