@@ -37,8 +37,6 @@ void Entity::update() {
 		return;
 	}
 	long long micros = time_now.asMicroseconds() - lastUpdated.asMicroseconds();
-	const float vel = 0.0003; // pixels / ms
-	//position += moving * vel * micros;
 	target_movement = moving * float(vel * micros);
 	lastUpdated = clock.getElapsedTime();
 }

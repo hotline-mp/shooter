@@ -10,10 +10,8 @@ class Bala : public Entity{
 
 public:
     const float bala_r=5;
-    const float vel=1.0;
     void draw();
-    Bala(sf::RenderWindow &window, sf::Vector2f &camera);
-
+    Bala(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera);
 private:
     sf::CircleShape shape{bala_r};
 

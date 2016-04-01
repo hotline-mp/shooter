@@ -6,7 +6,7 @@
 class Player : public Entity
 {
 	public:
-		Player(sf::RenderWindow &window, sf::Vector2f &camera);
+		Player(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera);
 		void draw();
 	private:
 		sf::CircleShape shape{player_r};

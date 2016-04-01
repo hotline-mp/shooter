@@ -3,8 +3,9 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include "vector.hpp"
 
-Game::Game() : player(window, camera) {
+Game::Game() : player(clock, window, camera) {
     window.create(sf::VideoMode(screen_w, screen_h), "shooter demo",
 			sf::Style::Titlebar | sf::Style::Close);
 	window.setVerticalSyncEnabled(true);
@@ -67,7 +68,7 @@ void Game::update() {
 	player.update();
 	player.collisions(map);
 
-	for (Bala bullet : bullets) {
+	for (auto &bullet : bullets) {
         bullet.update();
         bullet.position += bullet.target_movement;
 	}
@@ -134,9 +135,12 @@ void Game::playingHandleEvent(sf::Event &event) {
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed){
         if (event.mouseButton.button == sf::Mouse::Left){
-            Bala bullet(window, camera);
+            Bala bullet(clock, window, camera);
+			sf::Vector2f player_center = player.position + sf::Vector2f(player_r, player_r);
             bullet.position = bulletSpawnPosition() - sf::Vector2f(bullet.bala_r, bullet.bala_r);
-            bullet.moving = player.position + sf::Vector2f(player_r, player_r) - bullet.position;
+			sf::Vector2f bullet_center = bullet.position +
+				sf::Vector2f(bullet.bala_r, bullet.bala_r);
+            bullet.moving = vecUnit(bullet_center - player_center);
             bullets.push_back(bullet);
         }
 	}
