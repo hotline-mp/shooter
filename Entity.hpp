@@ -13,13 +13,13 @@ const float player_r = 30.f;
 class Entity
 {
 	protected:
-		sf::Clock &clock;
+		sf::Clock clock;
 		sf::RenderWindow &window;
 		sf::Vector2f &camera;
 		sf::Time lastUpdated;
 	public:
-		Entity(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera) :
-			clock(clock), window(window), camera(camera) {};
+		Entity(sf::RenderWindow &window, sf::Vector2f &camera) :
+			window(window), camera(camera) {};
 
 		sf::Vector2f position;
 		sf::Vector2f moving; // direcció en la que s'intenta moure

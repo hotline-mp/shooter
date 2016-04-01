@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 
-Game::Game() : player(clock, window, camera) {
+Game::Game() : player(window, camera) {
     window.create(sf::VideoMode(screen_w, screen_h), "shooter demo",
 			sf::Style::Titlebar | sf::Style::Close);
 	window.setVerticalSyncEnabled(true);
@@ -67,6 +67,11 @@ void Game::update() {
 	player.update();
 	player.collisions(map);
 
+	for (Bala bullet : bullets) {
+        bullet.update();
+        bullet.position += bullet.target_movement;
+	}
+
 	// La camera ha de tenir el jugador sempre al centre de la pantalla, per tant:
 	// pos en pantalla = pos_jugador + camera = centre_pantalla - tamany_jugador
 	// camera = centre_pantalla - tamany_jugador - pos_jugador
@@ -86,14 +91,18 @@ void Game::playingLoop() {
 			player.position.x + player_r + player.moving.x * player_r - dbg_r + camera.x,
 			player.position.y + player_r + player.moving.y * player_r - dbg_r + camera.y
 			);
-	facing_dbg.setPosition(
+	/*facing_dbg.setPosition(
 			player.position.x + player_r + player.facing.x * player_r - dbg_r + camera.x,
 			player.position.y + player_r + player.facing.y * player_r - dbg_r + camera.y
-			);
+			);*/
+    sf::Vector2f vplayer_r(player_r, player_r);
+    sf::Vector2f vdbg_r(dbg_r, dbg_r);
+    facing_dbg.setPosition(player.position + vplayer_r +
+                           player.facing * player_r - vdbg_r + camera);
 
 	window.clear(sf::Color::Cyan);
 	text.setPosition(0, 300);
-	text.setString("hullo " + std::to_string(player.position.y));
+//	text.setString("hullo " + std::to_string(player.position.y));
 	window.draw(text);
 	player.draw();
 	window.draw(moving_dbg);
@@ -108,14 +117,28 @@ void Game::playingLoop() {
 		}
 		window.draw(polygon);
 	}
+	for (Bala bullet : bullets) {
+        bullet.draw();
+	}
 }
 
 void Game::playingHandleEvent(sf::Event &event) {
+
+	if (!window.hasFocus()) {
+		return;
+	}
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
 			next_game_state = KeysMenu;
 			std::cout << "menu" << std::endl;
 		}
+	} else if (event.type == sf::Event::MouseButtonPressed){
+        if (event.mouseButton.button == sf::Mouse::Left){
+            Bala bullet(window, camera);
+            bullet.position = bulletSpawnPosition() - sf::Vector2f(bullet.bala_r, bullet.bala_r);
+            bullet.moving = player.position + sf::Vector2f(player_r, player_r) - bullet.position;
+            bullets.push_back(bullet);
+        }
 	}
 }
 
@@ -140,12 +163,16 @@ int Game::run() {
 
 	camera = sf::Vector2f(0, 0);
 
-	map.resize(1);
+	map.resize(2);
 	map[0].resize(4);
 	map[0][0] = sf::Vector2f(5, 5);
 	map[0][1] = sf::Vector2f(560, 5);
 	map[0][2] = sf::Vector2f(560, 100);
 	map[0][3] = sf::Vector2f(5, 100);
+	map[1].resize(3);
+	map[1][0] = sf::Vector2f(1000, 5);
+	map[1][1] = sf::Vector2f(1560, 5);
+	map[1][2] = sf::Vector2f(1560, 100);
 
 	player.setPosition(screen_w/2-player_r, screen_h/2-player_r);
 
@@ -189,5 +216,11 @@ int Game::run() {
 	saveConfig();
 
 	return 0;
+}
+
+sf::Vector2f Game::bulletSpawnPosition(){
+    sf::Vector2f vplayer_r(player_r, player_r);
+    return (player.position + vplayer_r + player.facing * player_r);
+
 }
 
