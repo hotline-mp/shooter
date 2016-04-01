@@ -10,6 +10,8 @@ class Player : public Entity
 		void draw();
 	private:
 		sf::CircleShape shape{player_r};
+		sf::Texture texture;
+		sf::Sprite sprite;
 };
 
 #endif /* !PLAYER_H */
