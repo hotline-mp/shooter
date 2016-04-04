@@ -9,11 +9,12 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "Player.hpp"
 #include "GameState.hpp"
 #include "Menu.hpp"
-#include "Bala.hpp"
+#include "Bullet.hpp"
 
 const int screen_w = 800;
 const int screen_h = 600;
@@ -50,13 +51,15 @@ class Game
 
 		std::vector< std::vector<sf::Vector2f> > map;
 
-		std::vector<Bala> bullets;
+		std::vector<Bullet> bullets;
 
 		sf::Vector2f camera;
 
 		sf::Clock clock;
 
 		Player player;
+
+		bool dbg_enabled = false;
 
 	public:
 		Game();
