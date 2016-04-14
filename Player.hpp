@@ -12,7 +12,9 @@ class Player : public Entity
 	private:
 		//sf::CircleShape shape{player_r};
 		sf::Texture texture;
+		sf::Texture body;
 		sf::Sprite sprite;
+		sf::Sprite jugador;
 		void nextFrame();
 		std::vector<sf::IntRect> frames;
 		int frame;
