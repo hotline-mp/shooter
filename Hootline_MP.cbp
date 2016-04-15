@@ -58,6 +58,7 @@
 		<Unit filename="Menu.hpp" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.hpp" />
+		<Unit filename="StartMenu.cpp" />
 		<Unit filename="config.cpp" />
 		<Unit filename="keyMenu.cpp" />
 		<Unit filename="main.cpp" />
