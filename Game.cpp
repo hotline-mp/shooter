@@ -66,11 +66,27 @@ void Game::update() {
 	// vector unitari que va del centre del jugador
 	// en direcció a on apuntem
 	player.facing = v / len;
+
+	for (auto &enemy : enemies) {
+        enemy.update();
+		if (distancePointPoint(enemy.position, player.position) < 30.f) {
+			player.hit(player.position - enemy.position);
+			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
+		}
+	}
+
 	player.update();
 	player.collisions(map);
 
+
 	for (auto &bullet : bullets) {
         bullet.update(map);
+		for (auto &enemy : enemies) {
+			if (distancePointPoint(bullet.position, enemy.position) < 30.f) {
+				enemy.alive = false;
+				bullet.alive = false;
+			}
+		}
 	}
 
 	// La camera ha de tenir el jugador sempre al centre de la pantalla, per tant:
@@ -121,6 +137,15 @@ void Game::playingLoop() {
 				[](Bullet &b) { return !b.alive; }), bullets.end());
 	for (Bullet &bullet : bullets) {
         bullet.draw();
+	}
+	enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
+				[](Enemy &b) { return !b.alive; }), enemies.end());
+	for (Enemy &enemy : enemies) {
+        enemy.draw();
+	}
+
+	if (clock.getElapsedTime() < flash_timeout) {
+		window.clear(sf::Color::Red);
 	}
 }
 
@@ -179,6 +204,11 @@ int Game::run() {
 	map[1][0] = sf::Vector2f(1000, 5);
 	map[1][1] = sf::Vector2f(1560, 5);
 	map[1][2] = sf::Vector2f(1560, 100);
+
+	textures.push_back(sf::Texture());
+	textures[0].loadFromFile("enemy1.png");
+	enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
+	enemies[0].setPosition(50, 200);
 
 	player.setPosition(screen_w/2-player.radius, screen_h/2-player.radius);
 

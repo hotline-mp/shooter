@@ -1,19 +1,22 @@
-#include "Player.hpp"
-#include "vector.hpp"
+#include "Enemy.hpp"
+#include <iostream>
 
-Player::Player(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
+Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window,
+		sf::Vector2f *camera) :
 	Entity(clock, window, camera, 0.0003f, 30.f)
-	//shape(30.f)
 {
-	if (!texture.loadFromFile("player.png")) {
-		exit(1);
-	}
-	sprite.setTexture(texture);
+	//if (!texture.loadFromFile("enemy1.png")) {
+	//if (!texture.loadFromFile("player.png")) {
+	//	exit(1);
+	//}
+	//this->texture = texture;
+	sprite.setTexture(*texture);
 	frame = 0;
-	frames = {sf::IntRect(0,0,60,60), sf::IntRect(60,0,71,60),sf::IntRect(0,0,60,60),sf::IntRect(131,0,71,60)};
+	//frames = {sf::IntRect(0,0,60,60), sf::IntRect(60,0,71,60),sf::IntRect(0,0,60,60),sf::IntRect(131,0,71,60)};
+	frames = {sf::IntRect(0,0,60,60)};
 }
 
-void Player::nextFrame() {
+void Enemy::nextFrame() {
     if ((unsigned)frame == frames.size() - 1) {
         frame = 0;
     } else {
@@ -21,26 +24,15 @@ void Player::nextFrame() {
     }
 }
 
-void Player::draw() {
+void Enemy::draw() {
     sprite.setPosition(position + sf::Vector2f(30,30) + *camera);
-	sf::Vector2f curPos = sprite.getPosition();
-    sf::Vector2i position = sf::Mouse::getPosition(*window);
     sprite.setTextureRect(frames[frame]);
 
-    const float PI = 3.14159265;
-
-    float dx = curPos.x - position.x;
-    float dy = curPos.y - position.y;
-
-    float rotation = (atan2(dy, dx)) * 180 / PI;
-
-
-    sprite.setOrigin(50,30);
-	sprite.setRotation(rotation);
+    sprite.setOrigin(30,30);
 	window->draw(sprite);
 }
 
-void Player::update() {
+void Enemy::update() {
 	sf::Time time_now = clock->getElapsedTime();
 	if (lastUpdated.asMicroseconds() == 0) {
 		// El primer frame del joc ningú es mou
@@ -59,9 +51,5 @@ void Player::update() {
         nextFrame();
         lastAnimFrame = time_now;
 	}
-}
-
-void Player::hit(sf::Vector2f direction) {
-	moving = vecUnit(direction)*5.f;
 }
 
