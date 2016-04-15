@@ -49,3 +49,4 @@ float distanceLinePoint(sf::Vector2f A, sf::Vector2f B, sf::Vector2f P) {
 	return fabs((B.y-A.y)*P.x - (B.x-A.x)*P.y + B.x*A.y - A.x*B.y) /
 		sqrt(powf(B.y-A.y, 2) + powf(B.x-A.x, 2));
 }
+

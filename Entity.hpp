@@ -8,24 +8,21 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Time.hpp>
 
-const float player_r = 30.f;
-
 class Entity
 {
 	protected:
-		sf::Clock &clock;
-		sf::RenderWindow &window;
-		sf::Vector2f &camera;
+		// All of the objects pointed to here shall outlive the Entity
+		sf::Clock *clock;
+		sf::RenderWindow *window;
+		sf::Vector2f *camera;
 		sf::Time lastUpdated;
-		const float vel; // pixels / ms
+		float vel; // pixels / ms
 	public:
-		Entity(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera) :
-			clock(clock), window(window), camera(camera), vel(0.0003f) {};
-
 		sf::Vector2f position;
 		sf::Vector2f moving; // direcció en la que s'intenta moure
 		sf::Vector2f target_movement;
 		sf::Vector2f facing; // vector unitari
+		float radius; // pixels
 		bool alive;
 		void setPosition(float x, float y);
 		void setMoving(float x, float y);
@@ -34,10 +31,15 @@ class Entity
 		void update();
 		void collisions(std::vector<sf::Vector2f> polygon);
 		void collisions(std::vector< std::vector<sf::Vector2f> > map);
+
+		Entity(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
+			clock(clock), window(window), camera(camera), vel(0.0003f), radius(30.f),
+			alive(true) {};
 	protected:
-		Entity(sf::Clock &clock, sf::RenderWindow &window, sf::Vector2f &camera,
-				float vel) :
-			clock(clock), window(window), camera(camera), vel(vel) {};
+		Entity(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera,
+				float vel, float radius) :
+			clock(clock), window(window), camera(camera), vel(vel), radius(radius),
+			alive(true) {};
 };
 
 #endif /* !ENTITY_H */

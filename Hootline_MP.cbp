@@ -46,8 +46,8 @@
 			<Add directory="../SFML-2.3.2/lib" />
 			<Add directory="../libconfig/lib" />
 		</Linker>
-		<Unit filename="Bala.cpp" />
-		<Unit filename="Bala.hpp" />
+		<Unit filename="Bullet.cpp" />
+		<Unit filename="Bullet.hpp" />
 		<Unit filename="Entity.cpp" />
 		<Unit filename="Entity.hpp" />
 		<Unit filename="Game.cpp" />
