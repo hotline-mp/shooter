@@ -1,5 +1,6 @@
 #include "Enemy.hpp"
-#include <iostream>
+#include "Player.hpp"
+#include "vector.hpp"
 
 Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window,
 		sf::Vector2f *camera) :
@@ -32,7 +33,10 @@ void Enemy::draw() {
 	window->draw(sprite);
 }
 
-void Enemy::update() {
+void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) {
+	moving = vecUnit(player.position - position);
+
+	// common
 	sf::Time time_now = clock->getElapsedTime();
 	if (lastUpdated.asMicroseconds() == 0) {
 		// El primer frame del joc ningú es mou
@@ -40,7 +44,7 @@ void Enemy::update() {
 		return;
 	}
 	long long micros = time_now.asMicroseconds() - lastUpdated.asMicroseconds();
-	const float vel = 0.0003; // pixels / ms
+	const float vel = 0.00005; // pixels / ms
 	//position += moving * vel * micros;
 	target_movement = moving * float(vel * micros);
 	lastUpdated = clock->getElapsedTime();

@@ -68,7 +68,8 @@ void Game::update() {
 	player.facing = v / len;
 
 	for (auto &enemy : enemies) {
-        enemy.update();
+        enemy.update(player, map);
+		enemy.collisions(map);
 		if (distancePointPoint(enemy.position, player.position) < 30.f) {
 			player.hit(player.position - enemy.position);
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
