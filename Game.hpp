@@ -15,6 +15,7 @@
 #include "GameState.hpp"
 #include "Menu.hpp"
 #include "Bullet.hpp"
+#include "Enemy.hpp"
 
 const int screen_w = 800;
 const int screen_h = 600;
@@ -52,6 +53,8 @@ class Game
 		std::vector< std::vector<sf::Vector2f> > map;
 
 		std::vector<Bullet> bullets;
+		std::vector<Enemy> enemies;
+		std::vector<sf::Texture> textures;
 
 		sf::Vector2f camera;
 
@@ -60,6 +63,8 @@ class Game
 		Player player;
 
 		bool dbg_enabled = false;
+
+		sf::Time flash_timeout;
 
 	public:
 		Game();

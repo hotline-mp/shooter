@@ -1,8 +1,9 @@
 #include "Player.hpp"
+#include "vector.hpp"
 
 Player::Player(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
-	Entity(clock, window, camera, 0.0003f, 30.f),
-	shape(30.f)
+	Entity(clock, window, camera, 0.0003f, 30.f)
+	//shape(30.f)
 {
     if(!body.loadFromFile("playertorso.png"))
     {
@@ -101,5 +102,9 @@ void Player::update() {
         nextFrame();
         lastAnimFrame = time_now;
 	}
+}
+
+void Player::hit(sf::Vector2f direction) {
+	moving = vecUnit(direction)*5.f;
 }
 
