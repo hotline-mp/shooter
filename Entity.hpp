@@ -24,22 +24,24 @@ class Entity
 		sf::Vector2f facing; // vector unitari
 		float radius; // pixels
 		bool alive;
+		bool visible;
 		void setPosition(float x, float y);
 		void setMoving(float x, float y);
 		void setFacing(float x, float y);
 		void draw();
 		void update();
+		void pause();
 		void collisions(std::vector<sf::Vector2f> polygon);
 		void collisions(std::vector< std::vector<sf::Vector2f> > map);
 
 		Entity(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
 			clock(clock), window(window), camera(camera), vel(0.0003f), radius(30.f),
-			alive(true) {};
+			alive(true), visible(true) {};
 	protected:
 		Entity(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera,
 				float vel, float radius) :
 			clock(clock), window(window), camera(camera), vel(vel), radius(radius),
-			alive(true) {};
+			alive(true), visible(true) {};
 };
 
 #endif /* !ENTITY_H */

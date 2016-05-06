@@ -18,7 +18,11 @@ void Entity::setFacing(float x, float y) {
 
 void Entity::draw() {
 	// TODO
+	if (!visible) {
+		return;
+	}
     sf::CircleShape shape(radius);
+	shape.setOrigin(sf::Vector2f(radius, radius));
     shape.setFillColor(sf::Color::Green);
 }
 
@@ -34,10 +38,13 @@ void Entity::update() {
 	lastUpdated = clock->getElapsedTime();
 }
 
+void Entity::pause() {
+	lastUpdated = sf::Time(); // 0
+}
+
 void Entity::collisions(std::vector< std::vector<sf::Vector2f> > map) {
 	/* colisions TODO: arreglar */
-	sf::Vector2f player_center = this->position + this->target_movement +
-		sf::Vector2f(radius, radius);
+	sf::Vector2f player_center = this->position + this->target_movement;
 
 	bool collision = false;
 	sf::Vector2f ctarget = this->target_movement;
@@ -65,8 +72,7 @@ void Entity::collisions(std::vector< std::vector<sf::Vector2f> > map) {
 					sf::Vector2f tan_oberta = vecUnit(vecUnit(tanp) + vecUnit(c)*0.25f);
 
 					ctarget = tan_oberta * dotProduct(ctarget, tan_oberta);
-					player_center = this->position + ctarget +
-						sf::Vector2f(radius, radius);
+					player_center = this->position + ctarget;
 				}
 			}
 			// col.lisió amb les arestes, té problemes a les cantonades
@@ -86,13 +92,12 @@ void Entity::collisions(std::vector< std::vector<sf::Vector2f> > map) {
 					distancePointPoint(pointB, player_center) < radius) {
 				collision = true;
 				ctarget = axisUnit * dotProduct(ctarget, axisUnit);
-				player_center = this->position + ctarget +
-					sf::Vector2f(radius, radius);
+				player_center = this->position + ctarget;
 			}
 		}
 	}
 
-	this->position = player_center - sf::Vector2f(radius, radius);
+	this->position = player_center;
 
 }
 

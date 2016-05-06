@@ -30,10 +30,14 @@ class Game
 		void playingHandleEvent(sf::Event &event);
 		void keysMenuLoop();
 		void keysMenuHandleEvent(sf::Event &event);
+		void mapEditorLoop();
+		void mapEditorHandleEvent(sf::Event &event);
 
 		Menu keysMenu;
 
 		sf::RenderWindow window;
+
+		void draw();
 
 		void update();
 		void updateDirection();
@@ -62,9 +66,16 @@ class Game
 
 		Player player;
 
-		bool dbg_enabled = false;
+		bool dbg_enabled = true;
 
 		sf::Time flash_timeout;
+
+		sf::Time lastFrame;
+
+		// editor
+		int selected_poly = -1;
+		int selected_point = -1;
+		int selected_enemy = -1;
 
 	public:
 		Game();

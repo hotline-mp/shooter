@@ -12,6 +12,7 @@ Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window,
 	//}
 	//this->texture = texture;
 	sprite.setTexture(*texture);
+    sprite.setOrigin(30,30);
 	frame = 0;
 	//frames = {sf::IntRect(0,0,60,60), sf::IntRect(60,0,71,60),sf::IntRect(0,0,60,60),sf::IntRect(131,0,71,60)};
 	frames = {sf::IntRect(0,0,60,60)};
@@ -26,10 +27,12 @@ void Enemy::nextFrame() {
 }
 
 void Enemy::draw() {
-    sprite.setPosition(position + sf::Vector2f(30,30) + *camera);
+	if (!visible) {
+		return;
+	}
+    sprite.setPosition(position + *camera);
     sprite.setTextureRect(frames[frame]);
 
-    sprite.setOrigin(30,30);
 	window->draw(sprite);
 }
 
