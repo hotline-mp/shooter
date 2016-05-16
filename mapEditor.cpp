@@ -20,9 +20,30 @@ void Game::mapEditorLoop() {
 	camera += -player.moving * float(micros * vel);
 	window.clear(sf::Color::Cyan);
 
-	text.setString("map editor. press esc to exit");
-	text.setPosition(0, 300);
-	window.draw(text);
+	if (show_editor_help) {
+		text.setString("map editor. press esc to exit");
+		text.setPosition(0, 300);
+		window.draw(text);
+		text.setString("F1 to save");
+		text.setPosition(0, 325);
+		window.draw(text);
+		text.setString("F2 to load");
+		text.setPosition(0, 350);
+		window.draw(text);
+		text.setString("map number: " + std::to_string(map_n) + " (F3/F4 to change)");
+		text.setPosition(0, 375);
+		window.draw(text);
+		text.setString("F5 to show/hide help");
+		text.setPosition(0, 400);
+		text.setString("Right click to add nodes, 1 to add enemies");
+		text.setPosition(0, 425);
+		window.draw(text);
+	}
+	if (clock.getElapsedTime() < error_message_timeout) {
+		text.setString(error_message);
+		text.setPosition(0, 0);
+		window.draw(text);
+	}
 	text.setString("");
 	for (int i=0; i<(int)map.size(); i++) {
 		sf::ConvexShape polygon;
@@ -113,9 +134,20 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 		}
 		if (event.key.code == sf::Keyboard::F1) { // save
 			if (saveMap(map_n)) exit(1);
-		}
-		if (event.key.code == sf::Keyboard::F2) { // load
-			if (loadMap(map_n)) exit(1);
+		} else if (event.key.code == sf::Keyboard::F2) { // load
+			if (int err_n = loadMap(map_n)) {
+				error_message_timeout = clock.getElapsedTime() + sf::seconds(2);
+				error_message = "Couldn't load map: error " + std::to_string(err_n);
+				//exit(1);
+			}
+		} else if (event.key.code == sf::Keyboard::F3) {
+			if (map_n > 0) {
+				map_n--;
+			}
+		} else if (event.key.code == sf::Keyboard::F4) {
+			map_n++;
+		} else if (event.key.code == sf::Keyboard::F5) {
+			show_editor_help = !show_editor_help;
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Right) {

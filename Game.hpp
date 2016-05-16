@@ -80,9 +80,13 @@ class Game
 		int map_n = 0;
 
 		// editor
+		bool show_editor_help = true;
 		int selected_poly = -1;
 		int selected_point = -1;
 		int selected_enemy = -1;
+
+		std::string error_message = "";
+		sf::Time error_message_timeout;
 
 		bool clicked_on_already_selected_point = false;
 		bool dragging = false;
