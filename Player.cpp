@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Player.hpp"
 #include "vector.hpp"
 
