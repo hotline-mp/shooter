@@ -4,7 +4,7 @@
 
 Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window,
 		sf::Vector2f *camera) :
-	Entity(clock, window, camera, 0.0003f, 30.f)
+	Entity(clock, window, camera, 0.00015f, 30.f)
 {
 	//if (!texture.loadFromFile("enemy1.png")) {
 	//if (!texture.loadFromFile("player.png")) {
@@ -37,7 +37,25 @@ void Enemy::draw() {
 }
 
 void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) {
-	moving = vecUnit(player.position - position);
+	moving = sf::Vector2f(0, 0);
+	/*
+	 * Quan ja hem vist el jugador, el perseguim fins a la mort
+	 */
+	if (distancePointPoint(player.position, position) < 400 && !seen_player) {
+		bool can_see = true;
+		for (auto &poly : map) {
+			if (lineCrossesPoly(player.position, position, poly)) {
+				can_see = false;
+				break;
+			}
+		}
+		if (can_see) {
+			seen_player = true;
+		}
+	}
+	if (seen_player) {
+		moving = vecUnit(player.position - position);
+	}
 
 	// common
 	sf::Time time_now = clock->getElapsedTime();
@@ -47,7 +65,6 @@ void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) 
 		return;
 	}
 	long long micros = time_now.asMicroseconds() - lastUpdated.asMicroseconds();
-	const float vel = 0.00005; // pixels / ms
 	//position += moving * vel * micros;
 	target_movement = moving * float(vel * micros);
 	lastUpdated = clock->getElapsedTime();

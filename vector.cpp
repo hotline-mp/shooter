@@ -76,3 +76,26 @@ bool isPointInPoly(sf::Vector2f P, std::vector<sf::Vector2f> poly) {
 	return true;
 }
 
+bool lineCrossesLine(sf::Vector2f A, sf::Vector2f B,
+		sf::Vector2f C, sf::Vector2f D) {
+	return ((crossProduct(A - B, C - B) > 0) != (crossProduct(A - B, D - B) > 0) &&
+			(crossProduct(C - D, A - D) > 0) != (crossProduct(C - D, B - D) > 0));
+}
+
+bool lineCrossesPoly(sf::Vector2f A, sf::Vector2f B,
+		std::vector<sf::Vector2f> poly) {
+	for (int i=0; i<(int)poly.size(); i++) {
+		sf::Vector2f p1 = poly[i];
+		sf::Vector2f p2;
+		if (i+1 == (int)poly.size()) {
+			p2 = poly[0];
+		} else {
+			p2 = poly[i+1];
+		}
+		if (lineCrossesLine(A, B, p1, p2)) {
+			return true;
+		}
+	}
+	return false;
+}
+

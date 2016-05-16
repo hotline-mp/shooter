@@ -21,6 +21,7 @@ class Enemy : public Entity
 		std::vector<sf::IntRect> frames;
 		int frame;
 		sf::Time lastAnimFrame;
+		bool seen_player = false;
 };
 
 #endif /* !ENEMY_H */
