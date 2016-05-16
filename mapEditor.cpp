@@ -89,6 +89,14 @@ void Game::mapEditorLoop() {
 			map[selected_poly][selected_point] = mouse_coords;
 		}
 	}
+
+	if (selected_enemy != -1 && dragging) {
+		sf::Vector2f mouse_coords(sf::Mouse::getPosition(window));
+		mouse_coords -= camera;
+		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
+			enemies[selected_enemy].position = mouse_coords;
+		}
+	}
 }
 
 bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> map,
@@ -175,6 +183,7 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 					if (distancePointPoint(enemies[i].position, mouse_coords) < 7) {
 						selected_enemy = i;
 						selected_poly = -1;
+						dragging = true;
 					}
 				}
 				if (selected_enemy == -1) {
