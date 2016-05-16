@@ -11,5 +11,6 @@ void minMax(float &min, float &max);
 bool between(float n, float a, float b);
 float distancePointPoint(sf::Vector2f A, sf::Vector2f B);
 float distanceLinePoint(sf::Vector2f A, sf::Vector2f B, sf::Vector2f P);
+bool isPointInPoly(sf::Vector2f P, std::vector<sf::Vector2f> poly);
 
 #endif /* !VECTOR_HPP */

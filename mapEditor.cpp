@@ -39,9 +39,12 @@ void Game::mapEditorLoop() {
 		for (int j=0; j<(int)map[i].size(); j++) {
 			sf::CircleShape point(3);
 			point.setOrigin(3, 3);
-			point.setFillColor(sf::Color::Blue);
-			if (i == selected_poly && j == selected_point) {
-				point.setFillColor(sf::Color::Red);
+			point.setFillColor(sf::Color::Green);
+			if (i == selected_poly) {
+				point.setFillColor(sf::Color::Blue);
+				if (j == selected_point) {
+					point.setFillColor(sf::Color::Red);
+				}
 			}
 			point.setPosition(map[i][j] + camera);
 			window.draw(point);
@@ -57,6 +60,29 @@ void Game::mapEditorLoop() {
 			point.setPosition(enemies[selected_enemy].position + camera);
 			window.draw(point);
 	}
+	// dragging
+	if (selected_poly != -1 && selected_point != -1 && dragging) {
+		sf::Vector2f mouse_coords(sf::Mouse::getPosition(window));
+		mouse_coords -= camera;
+		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
+			map[selected_poly][selected_point] = mouse_coords;
+		}
+	}
+}
+
+bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> map,
+		sf::Vector2f mouse_coords, int &selected_poly, int &selected_point) {
+	bool found = false;
+	for (int i=0; i<(int)map.size(); i++) {
+		for (int j=0; j<(int)map[i].size(); j++) {
+			if (distancePointPoint(map[i][j], mouse_coords) < 7) {
+				selected_poly = i;
+				selected_point = j;
+				found = true;
+			}
+		}
+	}
+	return found;
 }
 
 void Game::mapEditorHandleEvent(sf::Event &event) {
@@ -86,106 +112,143 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			}
 		}
 		if (event.key.code == sf::Keyboard::F1) { // save
-			std::ofstream out;
-			out.open("map1.dat", std::ios::out | std::ios::trunc | std::ios::binary);
-			out << "MAP";
-			if (!out.good()) {
-				std::cout << "error opening file" << std::endl;
-				exit(1);
-			}
-			for (int i=0; i<(int)map.size(); i++) {
-				out << 'P';
-				for (int j=0; j<(int)map[i].size(); j++) {
-					out << 'p';
-					out << 'x';
-					int32_t intx = int32_t(map[i][j].x);
-					out.write((char*)&intx, sizeof(int32_t));
-					out << 'y';
-					int32_t inty = int32_t(map[i][j].y);
-					out.write((char*)&inty, sizeof(int32_t));
-				}
-			}
-			out.close();
+			if (saveMap(map_n)) exit(1);
 		}
 		if (event.key.code == sf::Keyboard::F2) { // load
-			std::ifstream file;
-			file.open("map1.dat", std::ios::binary);
-			if (!file.good()) {
-				std::cout << "error opening file" << std::endl;
-				exit(1);
-			}
-			char head[4];
-			file.read(head, 3);
-			head[3] = '\0';
-			if (std::string(head) != "MAP") {
-				std::cout << "bad map" << std::endl;
-				std::cout << head;
-				exit(1);
-			}
-			map = std::vector< std::vector<sf::Vector2f> >();
-			while (!file.eof()) {
-				char c;
-				file.read(&c, 1);
-				if (c == 'P') {
-					map.push_back(std::vector<sf::Vector2f>());
-				} else if (c == 'p') {
-					if (map.size() == 0) {
-						std::cout << "bad map p" << std::endl;
-					}
-					file.read(&c, 1);
-					if (c != 'x') {
-						std::cout << "bad map x" << std::endl;
-						exit(1);
-					}
-					int32_t x;
-					file.read((char*)&x, sizeof(int32_t));
-					file.read(&c, 1);
-					if (c != 'y') {
-						std::cout << "bad map y" << std::endl;
-						exit(1);
-					}
-					int32_t y;
-					file.read((char*)&y, sizeof(int32_t));
-					sf::Vector2f p(x, y);
-					map[map.size()-1].push_back(p);
-				}
-			}
-			file.close();
+			if (loadMap(map_n)) exit(1);
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Right) {
 			if (selected_poly == -1) {
 				map.push_back(std::vector<sf::Vector2f>{{mouse_coords}});
+				selected_poly = map.size() - 1;
 			} else {
 				if (selected_point == -1) {
 					map[selected_poly].push_back(mouse_coords);
 				} else {
-					map[selected_poly][selected_point] = mouse_coords;
+					auto poly = &map[selected_poly];
+					poly->insert(poly->begin()+selected_point, mouse_coords);
 				}
 			}
         } else if (event.mouseButton.button == sf::Mouse::Left) {
 			selected_enemy = -1;
 			int previous = selected_point;
-			for (int i=0; i<(int)map.size(); i++) {
-				for (int j=0; j<(int)map[i].size(); j++) {
-					if (distancePointPoint(map[i][j], mouse_coords) < 7) {
-						selected_poly = i;
-						selected_point = j;
+			drag_start_coords = mouse_coords;
+			if (testClickedPoint(map, mouse_coords, selected_poly, selected_point)) {
+				clicked_on_already_selected_point = (selected_point == previous);
+				dragging = true;
+			} else {
+				selected_point = -1;
+				for (int i=0; i<(int)enemies.size(); i++) {
+					if (distancePointPoint(enemies[i].position, mouse_coords) < 7) {
+						selected_enemy = i;
+						selected_poly = -1;
+					}
+				}
+				if (selected_enemy == -1) {
+					bool found = false;
+					for (int i; i<(int)map.size(); i++) {
+						if (isPointInPoly(mouse_coords, map[i])) {
+							found = true;
+							selected_poly = i;
+							break;
+						}
+					}
+					if (!found) {
+						selected_poly = -1;
 					}
 				}
 			}
-			if (selected_point == previous) {
+		}
+	} else if (event.type == sf::Event::MouseButtonReleased) {
+		dragging = false;
+		if (selected_poly != -1 && selected_point != -1) {
+			if (clicked_on_already_selected_point) {
+				// de-select
 				selected_point = -1;
-			}
-			for (int i=0; i<(int)enemies.size(); i++) {
-				if (distancePointPoint(enemies[i].position, mouse_coords) < 7) {
-					selected_enemy = i;
-					selected_poly = -1;
-					selected_point = -1;
-				}
 			}
 		}
 	}
 }
 
+int Game::saveMap(int n) {
+	std::string s = "map" + std::to_string(n) + ".dat";
+	return saveMap(s);
+}
+
+int Game::saveMap(std::string name) {
+	std::ofstream out;
+	out.open(name, std::ios::out | std::ios::trunc | std::ios::binary);
+	out << "MAP";
+	if (!out.good()) {
+		std::cout << "error opening file" << std::endl;
+		return 1;
+	}
+	for (int i=0; i<(int)map.size(); i++) {
+		out << 'P';
+		for (int j=0; j<(int)map[i].size(); j++) {
+			out << 'p';
+			out << 'x';
+			int32_t intx = int32_t(map[i][j].x);
+			out.write((char*)&intx, sizeof(int32_t));
+			out << 'y';
+			int32_t inty = int32_t(map[i][j].y);
+			out.write((char*)&inty, sizeof(int32_t));
+		}
+	}
+	out.close();
+	return 0;
+}
+
+int Game::loadMap(int n) {
+	std::string s = "map" + std::to_string(n) + ".dat";
+	return loadMap(s);
+}
+
+int Game::loadMap(std::string name) {
+	std::ifstream file;
+	file.open(name, std::ios::binary);
+	if (!file.good()) {
+		std::cout << "error opening file" << std::endl;
+		return 1;
+	}
+	char head[4];
+	file.read(head, 3);
+	head[3] = '\0';
+	if (std::string(head) != "MAP") {
+		std::cout << "bad map" << std::endl;
+		std::cout << head;
+		return 2;
+	}
+	map = std::vector< std::vector<sf::Vector2f> >();
+	while (!file.eof()) {
+		char c;
+		file.read(&c, 1);
+		if (c == 'P') {
+			map.push_back(std::vector<sf::Vector2f>());
+		} else if (c == 'p') {
+			if (map.size() == 0) {
+				std::cout << "bad map p" << std::endl;
+			}
+			file.read(&c, 1);
+			if (c != 'x') {
+				std::cout << "bad map x" << std::endl;
+				exit(1);
+			}
+			int32_t x;
+			file.read((char*)&x, sizeof(int32_t));
+			file.read(&c, 1);
+			if (c != 'y') {
+				std::cout << "bad map y" << std::endl;
+				exit(1);
+			}
+			int32_t y;
+			file.read((char*)&y, sizeof(int32_t));
+			sf::Vector2f p(x, y);
+			map[map.size()-1].push_back(p);
+		}
+	}
+	file.close();
+	return 0;
+}
 

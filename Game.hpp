@@ -48,6 +48,11 @@ class Game
 		libconfig::Config cfg;
 		std::unordered_map<std::string, int> keys;
 
+		int loadMap(std::string name);
+		int loadMap(int n);
+		int saveMap(std::string name);
+		int saveMap(int n);
+
 		sf::Font font;
 		sf::Text text;
 
@@ -66,16 +71,22 @@ class Game
 
 		Player player;
 
-		bool dbg_enabled = true;
+		bool dbg_enabled = false;
 
 		sf::Time flash_timeout;
 
 		sf::Time lastFrame;
 
+		int map_n = 0;
+
 		// editor
 		int selected_poly = -1;
 		int selected_point = -1;
 		int selected_enemy = -1;
+
+		bool clicked_on_already_selected_point = false;
+		bool dragging = false;
+		sf::Vector2f drag_start_coords;
 
 	public:
 		Game();

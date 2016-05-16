@@ -60,8 +60,7 @@ void Game::updateDirection() {
 void Game::update() {
 	updateDirection();
 	sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
-	sf::Vector2f playerSizeVec(player.radius, player.radius);
-	sf::Vector2f v(mousePosition - player.position - playerSizeVec - camera);
+	sf::Vector2f v(mousePosition - player.position - camera);
 	float len = sqrt(powf(v.x, 2) + powf(v.y, 2));
 	// vector unitari que va del centre del jugador
 	// en direcció a on apuntem
@@ -93,7 +92,7 @@ void Game::update() {
 	// La camera ha de tenir el jugador sempre al centre de la pantalla, per tant:
 	// pos en pantalla = pos_jugador + camera = centre_pantalla - tamany_jugador
 	// camera = centre_pantalla - tamany_jugador - pos_jugador
-	camera = sf::Vector2f(screen_w/2, screen_h/2) - playerSizeVec - player.position;
+	camera = sf::Vector2f(screen_w/2, screen_h/2) - player.position;
 }
 
 void Game::draw() {
@@ -169,11 +168,8 @@ void Game::playingHandleEvent(sf::Event &event) {
 	} else if (event.type == sf::Event::MouseButtonPressed){
         if (event.mouseButton.button == sf::Mouse::Left){
             Bullet bullet(&clock, &window, &camera);
-			sf::Vector2f player_center = player.position;
-            bullet.position = bulletSpawnPosition() - sf::Vector2f(bullet.radius, bullet.radius);
-			sf::Vector2f bullet_center = bullet.position +
-				sf::Vector2f(bullet.radius, bullet.radius);
-            bullet.moving = vecUnit(bullet_center - player_center);
+            bullet.position = bulletSpawnPosition();
+            bullet.moving = vecUnit(bullet.position - player.position);
             bullets.push_back(bullet);
         }
 	}
@@ -200,16 +196,17 @@ int Game::run() {
 
 	camera = sf::Vector2f(0, 0);
 
-	map.resize(2);
-	map[0].resize(4);
-	map[0][0] = sf::Vector2f(5, 5);
-	map[0][1] = sf::Vector2f(560, 5);
-	map[0][2] = sf::Vector2f(560, 100);
-	map[0][3] = sf::Vector2f(5, 100);
-	map[1].resize(3);
-	map[1][0] = sf::Vector2f(1000, 5);
-	map[1][1] = sf::Vector2f(1560, 5);
-	map[1][2] = sf::Vector2f(1560, 100);
+	loadMap(map_n);
+	//map.resize(2);
+	//map[0].resize(4);
+	//map[0][0] = sf::Vector2f(5, 5);
+	//map[0][1] = sf::Vector2f(560, 5);
+	//map[0][2] = sf::Vector2f(560, 100);
+	//map[0][3] = sf::Vector2f(5, 100);
+	//map[1].resize(3);
+	//map[1][0] = sf::Vector2f(1000, 5);
+	//map[1][1] = sf::Vector2f(1560, 5);
+	//map[1][2] = sf::Vector2f(1560, 100);
 
 	textures.push_back(sf::Texture());
 	textures[0].loadFromFile("enemy1.png");
@@ -272,6 +269,6 @@ int Game::run() {
 }
 
 sf::Vector2f Game::bulletSpawnPosition(){
-    return (player.position + player.facing * player.radius);
+    return (player.position + player.facing * (player.radius * 2));
 }
 
