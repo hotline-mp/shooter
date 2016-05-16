@@ -228,6 +228,15 @@ int Game::saveMap(std::string name) {
 			out.write((char*)&inty, sizeof(int32_t));
 		}
 	}
+	for (int i=0; i<(int)enemies.size(); i++) {
+		out << 'e';
+		out << 'x';
+		int32_t intx = int32_t(enemies[i].position.x);
+		out.write((char*)&intx, sizeof(int32_t));
+		out << 'y';
+		int32_t inty = int32_t(enemies[i].position.y);
+		out.write((char*)&inty, sizeof(int32_t));
+	}
 	out.close();
 	return 0;
 }
@@ -253,6 +262,7 @@ int Game::loadMap(std::string name) {
 		return 2;
 	}
 	map = std::vector< std::vector<sf::Vector2f> >();
+	enemies = std::vector<Enemy>();
 	while (!file.eof()) {
 		char c;
 		file.read(&c, 1);
@@ -278,6 +288,24 @@ int Game::loadMap(std::string name) {
 			file.read((char*)&y, sizeof(int32_t));
 			sf::Vector2f p(x, y);
 			map[map.size()-1].push_back(p);
+		} else if (c == 'e') {
+			file.read(&c, 1);
+			if (c != 'x') {
+				std::cout << "bad enemy x" << std::endl;
+				exit(1);
+			}
+			int32_t x;
+			file.read((char*)&x, sizeof(int32_t));
+			file.read(&c, 1);
+			if (c != 'y') {
+				std::cout << "bad enemy y" << std::endl;
+				exit(1);
+			}
+			int32_t y;
+			file.read((char*)&y, sizeof(int32_t));
+			sf::Vector2f p(x, y);
+			enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
+			enemies[enemies.size()-1].position = p;
 		}
 	}
 	file.close();

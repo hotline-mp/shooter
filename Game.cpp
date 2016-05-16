@@ -196,6 +196,9 @@ int Game::run() {
 
 	camera = sf::Vector2f(0, 0);
 
+	textures.push_back(sf::Texture());
+	textures[0].loadFromFile("enemy1.png");
+
 	loadMap(map_n);
 	//map.resize(2);
 	//map[0].resize(4);
@@ -208,10 +211,8 @@ int Game::run() {
 	//map[1][1] = sf::Vector2f(1560, 5);
 	//map[1][2] = sf::Vector2f(1560, 100);
 
-	textures.push_back(sf::Texture());
-	textures[0].loadFromFile("enemy1.png");
-	enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
-	enemies[0].setPosition(50, 200);
+	//enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
+	//enemies[0].setPosition(50, 200);
 
 	player.setPosition(screen_w/2-player.radius, screen_h/2-player.radius);
 
