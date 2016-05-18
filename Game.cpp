@@ -88,7 +88,8 @@ void Game::update() {
 		}
 	}
 
-	if (distancePointPoint(player.position, warp_pos) < 20) {
+	if (enemies.size() == 0 &&
+			distancePointPoint(player.position, warp_pos) < 20) {
 		map_n += 1;
 		if(loadMap(map_n) != 0) {
 			// fin
