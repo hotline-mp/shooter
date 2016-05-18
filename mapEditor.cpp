@@ -6,6 +6,15 @@
 #include <string>
 #include <cstdint>
 
+
+void Game::deselect_all() {
+	selected_enemy = -1;
+	selected_poly = -1;
+	selected_point = -1;
+	selected_spawn_pos = -1;
+	selected_warp_pos = -1;
+}
+
 void Game::mapEditorLoop() {
 	sf::Time time_now = clock.getElapsedTime();
 	if (lastFrame.asMicroseconds() == 0) {
@@ -17,7 +26,33 @@ void Game::mapEditorLoop() {
 	const float vel = 0.0003; // pixels / ms
 
 	updateDirection();
+
+	// dragging
+	sf::Vector2f mouse_coords(sf::Mouse::getPosition(window));
+	mouse_coords -= camera;
+	if (selected_poly != -1 && selected_point != -1 && dragging) {
+		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
+			map[selected_poly][selected_point] = mouse_coords;
+		}
+	}
+
+	if (selected_enemy != -1 && dragging) {
+		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
+			enemies[selected_enemy].position = mouse_coords;
+		}
+	}
+
+	if (selected_spawn_pos != -1 && dragging) {
+		spawn_pos = mouse_coords;
+	}
+
+	if (selected_warp_pos != -1 && dragging) {
+		warp_pos = mouse_coords;
+	}
+
 	camera += -player.moving * float(micros * vel);
+
+	//draw
 	window.clear(sf::Color::Cyan);
 
 	if (show_editor_help) {
@@ -81,21 +116,31 @@ void Game::mapEditorLoop() {
 			point.setPosition(enemies[selected_enemy].position + camera);
 			window.draw(point);
 	}
-	// dragging
-	if (selected_poly != -1 && selected_point != -1 && dragging) {
-		sf::Vector2f mouse_coords(sf::Mouse::getPosition(window));
-		mouse_coords -= camera;
-		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
-			map[selected_poly][selected_point] = mouse_coords;
-		}
+	// draw spawn point
+	sf::CircleShape point(10);
+	point.setOrigin(10, 10);
+	point.setFillColor(sf::Color::Yellow);
+	point.setPosition(spawn_pos + camera);
+	window.draw(point);
+	if (selected_spawn_pos != -1) {
+		point.setRadius(3);
+		point.setOrigin(3, 3);
+		point.setFillColor(sf::Color::Red);
+		point.setPosition(spawn_pos + camera);
+		window.draw(point);
 	}
-
-	if (selected_enemy != -1 && dragging) {
-		sf::Vector2f mouse_coords(sf::Mouse::getPosition(window));
-		mouse_coords -= camera;
-		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
-			enemies[selected_enemy].position = mouse_coords;
-		}
+	// draw warp point
+	point.setRadius(10);
+	point.setOrigin(10, 10);
+	point.setFillColor(sf::Color(0xFF, 0xAA, 0xAA));
+	point.setPosition(warp_pos + camera);
+	window.draw(point);
+	if (selected_warp_pos != -1) {
+		point.setRadius(3);
+		point.setOrigin(3, 3);
+		point.setFillColor(sf::Color::Red);
+		point.setPosition(warp_pos + camera);
+		window.draw(point);
 	}
 }
 
@@ -171,32 +216,41 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 				}
 			}
         } else if (event.mouseButton.button == sf::Mouse::Left) {
-			selected_enemy = -1;
 			int previous = selected_point;
+			deselect_all();
 			drag_start_coords = mouse_coords;
 			if (testClickedPoint(map, mouse_coords, selected_poly, selected_point)) {
 				clicked_on_already_selected_point = (selected_point == previous);
 				dragging = true;
+			} else if (distancePointPoint(mouse_coords, spawn_pos) < 7) {
+				if (selected_spawn_pos != -1) {
+					selected_spawn_pos = -1;
+				} else {
+					selected_spawn_pos = 0;
+					dragging = true;
+				}
+			} else if (distancePointPoint(mouse_coords, warp_pos) < 7) {
+				if (selected_warp_pos != -1) {
+					selected_warp_pos = -1;
+				} else {
+					selected_warp_pos = 0;
+					dragging = true;
+				}
 			} else {
-				selected_point = -1;
 				for (int i=0; i<(int)enemies.size(); i++) {
 					if (distancePointPoint(enemies[i].position, mouse_coords) < 7) {
 						selected_enemy = i;
-						selected_poly = -1;
 						dragging = true;
 					}
 				}
 				if (selected_enemy == -1) {
 					bool found = false;
-					for (int i; i<(int)map.size(); i++) {
+					for (int i=0; i<(int)map.size(); i++) {
 						if (isPointInPoly(mouse_coords, map[i])) {
 							found = true;
 							selected_poly = i;
 							break;
 						}
-					}
-					if (!found) {
-						selected_poly = -1;
 					}
 				}
 			}
@@ -217,6 +271,15 @@ int Game::saveMap(int n) {
 	return saveMap(s);
 }
 
+void write_pos(sf::Vector2f p, std::ofstream &out) {
+	out << 'x';
+	int32_t intx = int32_t(p.x);
+	out.write((char*)&intx, sizeof(int32_t));
+	out << 'y';
+	int32_t inty = int32_t(p.y);
+	out.write((char*)&inty, sizeof(int32_t));
+}
+
 int Game::saveMap(std::string name) {
 	std::ofstream out;
 	out.open(name, std::ios::out | std::ios::trunc | std::ios::binary);
@@ -229,23 +292,17 @@ int Game::saveMap(std::string name) {
 		out << 'P';
 		for (int j=0; j<(int)map[i].size(); j++) {
 			out << 'p';
-			out << 'x';
-			int32_t intx = int32_t(map[i][j].x);
-			out.write((char*)&intx, sizeof(int32_t));
-			out << 'y';
-			int32_t inty = int32_t(map[i][j].y);
-			out.write((char*)&inty, sizeof(int32_t));
+			write_pos(map[i][j], out);
 		}
 	}
 	for (int i=0; i<(int)enemies.size(); i++) {
 		out << 'e';
-		out << 'x';
-		int32_t intx = int32_t(enemies[i].position.x);
-		out.write((char*)&intx, sizeof(int32_t));
-		out << 'y';
-		int32_t inty = int32_t(enemies[i].position.y);
-		out.write((char*)&inty, sizeof(int32_t));
+		write_pos(enemies[i].position, out);
 	}
+	out << 's';
+	write_pos(spawn_pos, out);
+	out << 'w';
+	write_pos(warp_pos, out);
 	out.close();
 	return 0;
 }
@@ -253,6 +310,27 @@ int Game::saveMap(std::string name) {
 int Game::loadMap(int n) {
 	std::string s = "map" + std::to_string(n) + ".dat";
 	return loadMap(s);
+}
+
+sf::Vector2f read_point(std::ifstream &file, std::string where="map") {
+	char c;
+	file.read(&c, 1);
+	if (c != 'x') {
+		std::cout << file.tellg() << std::endl;
+		std::cout << "bad " << where << " x: " << (int)c << std::endl;
+		exit(1);
+	}
+	int32_t x;
+	file.read((char*)&x, sizeof(int32_t));
+	file.read(&c, 1);
+	if (c != 'y') {
+		std::cout << "bad map y" << std::endl;
+		exit(1);
+	}
+	int32_t y;
+	file.read((char*)&y, sizeof(int32_t));
+	sf::Vector2f p(x, y);
+	return p;
 }
 
 int Game::loadMap(std::string name) {
@@ -272,49 +350,28 @@ int Game::loadMap(std::string name) {
 	}
 	map = std::vector< std::vector<sf::Vector2f> >();
 	enemies = std::vector<Enemy>();
-	while (!file.eof()) {
+	while (true) {
 		char c;
 		file.read(&c, 1);
+		if (file.eof()) {
+			break;
+		}
 		if (c == 'P') {
 			map.push_back(std::vector<sf::Vector2f>());
 		} else if (c == 'p') {
 			if (map.size() == 0) {
 				std::cout << "bad map p" << std::endl;
 			}
-			file.read(&c, 1);
-			if (c != 'x') {
-				std::cout << "bad map x" << std::endl;
-				exit(1);
-			}
-			int32_t x;
-			file.read((char*)&x, sizeof(int32_t));
-			file.read(&c, 1);
-			if (c != 'y') {
-				std::cout << "bad map y" << std::endl;
-				exit(1);
-			}
-			int32_t y;
-			file.read((char*)&y, sizeof(int32_t));
-			sf::Vector2f p(x, y);
+			sf::Vector2f p = read_point(file, "poly point");
 			map[map.size()-1].push_back(p);
 		} else if (c == 'e') {
-			file.read(&c, 1);
-			if (c != 'x') {
-				std::cout << "bad enemy x" << std::endl;
-				exit(1);
-			}
-			int32_t x;
-			file.read((char*)&x, sizeof(int32_t));
-			file.read(&c, 1);
-			if (c != 'y') {
-				std::cout << "bad enemy y" << std::endl;
-				exit(1);
-			}
-			int32_t y;
-			file.read((char*)&y, sizeof(int32_t));
-			sf::Vector2f p(x, y);
+			sf::Vector2f p = read_point(file, "enemy");
 			enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
 			enemies[enemies.size()-1].position = p;
+		} else if (c == 's') {
+			spawn_pos = read_point(file);
+		} else if (c == 'w') {
+			warp_pos = read_point(file);
 		}
 	}
 	file.close();

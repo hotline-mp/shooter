@@ -79,11 +79,19 @@ class Game
 
 		int map_n = 0;
 
+		sf::Vector2f spawn_pos;
+		sf::Vector2f warp_pos;
+
 		// editor
 		bool show_editor_help = true;
 		int selected_poly = -1;
 		int selected_point = -1;
 		int selected_enemy = -1;
+
+		int selected_spawn_pos = -1;
+		int selected_warp_pos = -1;
+
+		void deselect_all();
 
 		std::string error_message = "";
 		sf::Time error_message_timeout;
