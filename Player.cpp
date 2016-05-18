@@ -1,15 +1,23 @@
+#include <math.h>
 #include "Player.hpp"
+#include "vector.hpp"
 
 Player::Player(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
-	Entity(clock, window, camera, 0.0003f, 30.f),
-	shape(30.f)
+	Entity(clock, window, camera, 0.0003f, 20.f)
 {
-	if (!texture.loadFromFile("player.png")) {
+    if(!body.loadFromFile("playertorso.png")) {
+		exit(1);
+    }
+    jugador.setTexture(body);
+	jugador.setOrigin(40,30);
+	if (!texture.loadFromFile("playerpiernas.png")) {
 		exit(1);
 	}
 	sprite.setTexture(texture);
+    sprite.setOrigin(40,30);
 	frame = 0;
-	frames = {sf::IntRect(0,0,60,60), sf::IntRect(60,0,71,60),sf::IntRect(0,0,60,60),sf::IntRect(131,0,71,60)};
+	frames = {sf::IntRect(0,0,60,60), sf::IntRect(60,0,71,60),
+		sf::IntRect(0,0,60,60), sf::IntRect(131,0,71,60)};
 }
 
 void Player::nextFrame() {
@@ -21,10 +29,13 @@ void Player::nextFrame() {
 }
 
 void Player::draw() {
-    sprite.setPosition(position + sf::Vector2f(30,30) + *camera);
-	sf::Vector2f curPos = sprite.getPosition();
+	if (!visible) {
+		return;
+	}
+	sf::Vector2f curPos = jugador.getPosition();
     sf::Vector2i position = sf::Mouse::getPosition(*window);
     sprite.setTextureRect(frames[frame]);
+    jugador.setTextureRect(frames[frame]);
 
     const float PI = 3.14159265;
 
@@ -32,11 +43,18 @@ void Player::draw() {
     float dy = curPos.y - position.y;
 
     float rotation = (atan2(dy, dx)) * 180 / PI;
+    float feet_rotation = (atan2(moving.y, moving.x)) * 180 / PI;
+	// Si no ens estem movent, els peus avall, però si no, fa falta sumar 90 graus
+	if (moving != sf::Vector2f(0, 0)) {
+		feet_rotation += 90;
+	}
 
-
-    sprite.setOrigin(50,30);
-	sprite.setRotation(rotation);
+	sprite.setRotation(feet_rotation);
+	jugador.setRotation(rotation);
+    sprite.setPosition(this->position + *camera);
+    jugador.setPosition(this->position + *camera);
 	window->draw(sprite);
+	window->draw(jugador);
 }
 
 void Player::update() {
@@ -58,5 +76,9 @@ void Player::update() {
         nextFrame();
         lastAnimFrame = time_now;
 	}
+}
+
+void Player::hit(sf::Vector2f direction) {
+	moving = vecUnit(direction)*5.f;
 }
 

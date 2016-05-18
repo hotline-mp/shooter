@@ -48,6 +48,8 @@
 		</Linker>
 		<Unit filename="Bullet.cpp" />
 		<Unit filename="Bullet.hpp" />
+		<Unit filename="Enemy.cpp" />
+		<Unit filename="Enemy.hpp" />
 		<Unit filename="Entity.cpp" />
 		<Unit filename="Entity.hpp" />
 		<Unit filename="Game.cpp" />
@@ -63,6 +65,7 @@
 		<Unit filename="config.cpp" />
 		<Unit filename="keyMenu.cpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="mapEditor.cpp" />
 		<Unit filename="sans.ttf" />
 		<Unit filename="vector.cpp" />
 		<Unit filename="vector.hpp" />

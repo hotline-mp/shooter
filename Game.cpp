@@ -60,23 +60,65 @@ void Game::updateDirection() {
 void Game::update() {
 	updateDirection();
 	sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
-	sf::Vector2f playerSizeVec(player.radius, player.radius);
-	sf::Vector2f v(mousePosition - player.position - playerSizeVec - camera);
+	sf::Vector2f v(mousePosition - player.position - camera);
 	float len = sqrt(powf(v.x, 2) + powf(v.y, 2));
 	// vector unitari que va del centre del jugador
 	// en direcció a on apuntem
 	player.facing = v / len;
+
+	for (auto &enemy : enemies) {
+        enemy.update(player, map);
+		enemy.collisions(map);
+		if (distancePointPoint(enemy.position, player.position) < 30.f) {
+			player.hit(player.position - enemy.position);
+			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
+		}
+	}
+
 	player.update();
 	player.collisions(map);
 
+
 	for (auto &bullet : bullets) {
         bullet.update(map);
+		for (auto &enemy : enemies) {
+			if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
+				enemy.alive = false;
+				bullet.alive = false;
+			}
+		}
 	}
 
 	// La camera ha de tenir el jugador sempre al centre de la pantalla, per tant:
 	// pos en pantalla = pos_jugador + camera = centre_pantalla - tamany_jugador
 	// camera = centre_pantalla - tamany_jugador - pos_jugador
-	camera = sf::Vector2f(screen_w/2, screen_h/2) - playerSizeVec - player.position;
+	camera = sf::Vector2f(screen_w/2, screen_h/2) - player.position;
+}
+
+void Game::draw() {
+	text.setPosition(0, 300);
+//	text.setString("hullo " + std::to_string(player.position.y));
+	window.draw(text);
+	player.draw();
+	for (auto &points : map) {
+		sf::ConvexShape polygon;
+		polygon.setPointCount(points.size());
+		int i=0;
+		for (auto &point : points) {
+			polygon.setPoint(i, point + camera);
+			i++;
+		}
+		window.draw(polygon);
+	}
+	for (Bullet &bullet : bullets) {
+        bullet.draw();
+	}
+	for (Enemy &enemy : enemies) {
+        enemy.draw();
+	}
+	if (clock.getElapsedTime() < flash_timeout) {
+		window.clear(sf::Color::Red);
+	}
 }
 
 void Game::playingLoop() {
@@ -95,33 +137,19 @@ void Game::playingLoop() {
 		sf::Vector2f vdbg_r(dbg_r, dbg_r);
 		sf::Vector2f vplayer_r(player.radius, player.radius);
 		moving_dbg.setPosition(
-				player.position + vplayer_r + player.moving * player.radius -
+				player.position + player.moving * player.radius -
 				vdbg_r + camera);
-		facing_dbg.setPosition(player.position + vplayer_r +
+		facing_dbg.setPosition(player.position +
 				player.facing * player.radius - vdbg_r + camera);
 		window.draw(moving_dbg);
 		window.draw(facing_dbg);
 	}
 
-	text.setPosition(0, 300);
-//	text.setString("hullo " + std::to_string(player.position.y));
-	window.draw(text);
-	player.draw();
-	for (auto &points : map) {
-		sf::ConvexShape polygon;
-		polygon.setPointCount(points.size());
-		int i=0;
-		for (auto &point : points) {
-			polygon.setPoint(i, point + camera);
-			i++;
-		}
-		window.draw(polygon);
-	}
 	bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
 				[](Bullet &b) { return !b.alive; }), bullets.end());
-	for (Bullet &bullet : bullets) {
-        bullet.draw();
-	}
+	enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
+				[](Enemy &b) { return !b.alive; }), enemies.end());
+	draw();
 }
 
 void Game::playingHandleEvent(sf::Event &event) {
@@ -133,16 +161,15 @@ void Game::playingHandleEvent(sf::Event &event) {
 		if (event.key.code == sf::Keyboard::Escape) {
 			next_game_state = KeysMenu;
 			std::cout << "menu" << std::endl;
+		} else if (event.key.code == sf::Keyboard::F8) {
+			next_game_state = MapEditor;
+			std::cout << "mapeditor" << std::endl;
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed){
         if (event.mouseButton.button == sf::Mouse::Left){
             Bullet bullet(&clock, &window, &camera);
-			sf::Vector2f player_center = player.position +
-				sf::Vector2f(player.radius, player.radius);
-            bullet.position = bulletSpawnPosition() - sf::Vector2f(bullet.radius, bullet.radius);
-			sf::Vector2f bullet_center = bullet.position +
-				sf::Vector2f(bullet.radius, bullet.radius);
-            bullet.moving = vecUnit(bullet_center - player_center);
+            bullet.position = bulletSpawnPosition();
+            bullet.moving = vecUnit(bullet.position - player.position);
             bullets.push_back(bullet);
         }
 	}
@@ -169,16 +196,23 @@ int Game::run() {
 
 	camera = sf::Vector2f(0, 0);
 
-	map.resize(2);
-	map[0].resize(4);
-	map[0][0] = sf::Vector2f(5, 5);
-	map[0][1] = sf::Vector2f(560, 5);
-	map[0][2] = sf::Vector2f(560, 100);
-	map[0][3] = sf::Vector2f(5, 100);
-	map[1].resize(3);
-	map[1][0] = sf::Vector2f(1000, 5);
-	map[1][1] = sf::Vector2f(1560, 5);
-	map[1][2] = sf::Vector2f(1560, 100);
+	textures.push_back(sf::Texture());
+	textures[0].loadFromFile("enemy1.png");
+
+	loadMap(map_n);
+	//map.resize(2);
+	//map[0].resize(4);
+	//map[0][0] = sf::Vector2f(5, 5);
+	//map[0][1] = sf::Vector2f(560, 5);
+	//map[0][2] = sf::Vector2f(560, 100);
+	//map[0][3] = sf::Vector2f(5, 100);
+	//map[1].resize(3);
+	//map[1][0] = sf::Vector2f(1000, 5);
+	//map[1][1] = sf::Vector2f(1560, 5);
+	//map[1][2] = sf::Vector2f(1560, 100);
+
+	//enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
+	//enemies[0].setPosition(50, 200);
 
 	player.setPosition(screen_w/2-player.radius, screen_h/2-player.radius);
 
@@ -197,12 +231,20 @@ int Game::run() {
 					case KeysMenu:
 						keysMenuHandleEvent(event);
 						break;
+					case MapEditor:
+						mapEditorHandleEvent(event);
+						break;
 					default:
-						std::cerr << "error" << std::endl;
+						std::cerr << "error: game state not found" << std::endl;
 						window.close();
 				}
 			}
         }
+		if (game_state != next_game_state) {
+			for (auto &enemy : enemies) {
+				enemy.pause();
+			}
+		}
 		game_state = next_game_state;
 
 		switch (game_state) {
@@ -212,8 +254,11 @@ int Game::run() {
 			case KeysMenu:
 				keysMenuLoop();
 				break;
+			case MapEditor:
+				mapEditorLoop();
+				break;
 			default:
-				std::cerr << "error" << std::endl;
+				std::cerr << "error: game state not found" << std::endl;
 				window.close();
 		}
 
@@ -225,8 +270,6 @@ int Game::run() {
 }
 
 sf::Vector2f Game::bulletSpawnPosition(){
-    sf::Vector2f vplayer_r(player.radius, player.radius);
-    return (player.position + vplayer_r + player.facing * player.radius);
-
+    return (player.position + player.facing * (player.radius * 2));
 }
 

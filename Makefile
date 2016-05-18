@@ -8,20 +8,25 @@ LD = g++
 INCLUDES =
 LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lconfig++
 TARGET = shooter
-OBJECTS = main.o Entity.o Player.o Game.o Bullet.o Menu.o config.o keyMenu.o vector.o
+OBJDIR = obj
+OBJECTS = $(addprefix $(OBJDIR)/, main.o Entity.o Player.o \
+	  Game.o Bullet.o Enemy.o Menu.o config.o keyMenu.o \
+	  mapEditor.o vector.o )
 
-%.o : %.cpp
+all: $(TARGET)
+
+$(OBJDIR):
+	@mkdir -p $(OBJDIR)
+
+$(OBJDIR)/%.o : %.cpp | $(OBJDIR)
 	$(CXX) -MT $@ -MMD -MP $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(TARGET): $(OBJECTS)
 	$(LD) $(INCLUDES) $^ -o $@ $(LIBS)
 
+clean:
+	rm -f $(OBJECTS) $(TARGET) $(OBJDIR)/*.d
 
 .PHONY: all clean
-
-clean:
-	rm -f $(OBJECTS) $(TARGET) *.d
-
-all: $(TARGET)
 
 -include $(OBJECTS:.o=.d)
