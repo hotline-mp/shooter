@@ -65,7 +65,10 @@ void Game::mapEditorLoop() {
 		text.setString("F2 to load");
 		text.setPosition(0, 350);
 		window.draw(text);
-		text.setString("map number: " + std::to_string(map_n) + " (F3/F4 to change)");
+		char txt[200];
+		sprintf(txt, "map number: %d (F3/F4 to change)", map_n);
+		text.setString(txt);
+		//text.setString("map number: " + std::to_string(map_n) + " (F3/F4 to change)");
 		text.setPosition(0, 375);
 		window.draw(text);
 		text.setString("F5 to show/hide help");
@@ -190,7 +193,7 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 		} else if (event.key.code == sf::Keyboard::F2) { // load
 			if (int err_n = loadMap(map_n)) {
 				error_message_timeout = clock.getElapsedTime() + sf::seconds(2);
-				error_message = "Couldn't load map: error " + std::to_string(err_n);
+				error_message = "Couldn't load map: error "; // + std::to_string(err_n);
 				//exit(1);
 			}
 		} else if (event.key.code == sf::Keyboard::F3) {
@@ -267,7 +270,9 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 }
 
 int Game::saveMap(int n) {
-	std::string s = "map" + std::to_string(n) + ".dat";
+	char s[20];
+	sprintf(s, "map%d.dat", map_n);
+	//std::string s = "map" + std::to_string(n) + ".dat";
 	return saveMap(s);
 }
 
@@ -308,7 +313,9 @@ int Game::saveMap(std::string name) {
 }
 
 int Game::loadMap(int n) {
-	std::string s = "map" + std::to_string(n) + ".dat";
+	char s[20];
+	sprintf(s, "map%d.dat", map_n);
+	//std::string s = "map" + std::to_string(n) + ".dat";
 	return loadMap(s);
 }
 
