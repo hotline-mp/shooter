@@ -8,16 +8,21 @@ Player::Player(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera)
     if(!body.loadFromFile("playertorso.png")) {
 		exit(1);
     }
-    jugador.setTexture(body);
-	jugador.setOrigin(40,30);
-	if (!texture.loadFromFile("playerpiernas.png")) {
+    torso.setTexture(body);
+	torso.setOrigin(49,22);
+	if (!legs.loadFromFile("playerpiernas.png")) {
 		exit(1);
 	}
-	sprite.setTexture(texture);
-    sprite.setOrigin(40,30);
+	piernas.setTexture(legs);
+    piernas.setOrigin(18,44);
 	frame = 0;
-	frames = {sf::IntRect(0,0,60,60), sf::IntRect(60,0,71,60),
-		sf::IntRect(0,0,60,60), sf::IntRect(131,0,71,60)};
+	frames = {sf::IntRect(0,0,37,75), sf::IntRect(185,0,37,75), sf::IntRect(148,0,37,75),
+        sf::IntRect(111,0,37,75), sf::IntRect(74,0,37,75), sf::IntRect(37,0,37,75),
+        sf::IntRect(74,0,37,75), sf::IntRect(111,0,37,75), sf::IntRect(148,0,37,75),
+        sf::IntRect(185,0,37,75), sf::IntRect(0,0,37,75), sf::IntRect(222,0,37,75),
+        sf::IntRect(259,0,37,75), sf::IntRect(296,0,37,75), sf::IntRect(333,0,37,75),
+        sf::IntRect(370,0,37,75), sf::IntRect(333,0,37,75), sf::IntRect(296,0,37,75),
+        sf::IntRect(259,0,37,75), sf::IntRect(222,0,37,75)};
 }
 
 void Player::nextFrame() {
@@ -32,10 +37,9 @@ void Player::draw() {
 	if (!visible) {
 		return;
 	}
-	sf::Vector2f curPos = jugador.getPosition();
+	sf::Vector2f curPos = torso.getPosition();
     sf::Vector2i position = sf::Mouse::getPosition(*window);
-    sprite.setTextureRect(frames[frame]);
-    jugador.setTextureRect(frames[frame]);
+    piernas.setTextureRect(frames[frame]);
 
     const float PI = 3.14159265;
 
@@ -49,12 +53,12 @@ void Player::draw() {
 		feet_rotation += 90;
 	}
 
-	sprite.setRotation(feet_rotation);
-	jugador.setRotation(rotation);
-    sprite.setPosition(this->position + *camera);
-    jugador.setPosition(this->position + *camera);
-	window->draw(sprite);
-	window->draw(jugador);
+	piernas.setRotation(feet_rotation);
+	torso.setRotation(rotation);
+    piernas.setPosition(this->position + *camera);
+    torso.setPosition(this->position + *camera);
+	window->draw(piernas);
+	window->draw(torso);
 }
 
 void Player::update() {
@@ -72,7 +76,7 @@ void Player::update() {
 
     if (target_movement == sf::Vector2f(0, 0)) {
         frame = 0;
-    } else if ((time_now - lastAnimFrame).asMilliseconds() > 300) {
+    } else if ((time_now - lastAnimFrame).asMilliseconds() > 50) {
         nextFrame();
         lastAnimFrame = time_now;
 	}
