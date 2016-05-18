@@ -11,7 +11,7 @@ Game game;
 
 	sf::RenderWindow window(sf::VideoMode(600,600), "MAIN MENU");
 
-	StartMenu menu(window.getSize().x, window.getSize().y);
+	StartMenu text(window.getSize().x, window.getSize().y);
 
 	while (window.isOpen()){
 
@@ -27,21 +27,21 @@ Game game;
 
                 case sf::Keyboard::Up:
 
-                    menu.MoveUp();
+                    text.MoveUp();
                     break;
 
                 case sf::Keyboard::Down:
 
-                    menu.MoveDown();
+                    text.MoveDown();
                     break;
 
                 case sf::Keyboard::Return:
 
-                    switch (menu.GetPressedItem()){
+                    switch (text.GetPressedItem()){
 
                     case 0:
 
-
+                        window.close();
                         game.run();
                         break;
 
@@ -71,7 +71,7 @@ Game game;
         }
 
         window.clear();
-        window.draw(window);
+        text.draw(window);
         window.display();
 
 	}
