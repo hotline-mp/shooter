@@ -24,8 +24,15 @@ const int screen_h = 600;
 class Game
 {
 	private:
+		// game_state és la pantalla en la que es troba el motor en aquest moment
+		// (Playing, MainMenu, etc.)
+		// next_game_state és l'estat en que estarà el següent frame.
+		// previous_game_state ens serveix per tornar a l'estat anterior quan
+		// entrem al menú d'opcions, al que es pot entrar des del menú principal o
+		// des del menú de pausa.
 		GameState game_state = MainMenu;
 		GameState next_game_state = MainMenu;
+		std::vector<GameState> previous_game_state;
 
 		void playingLoop();
 		void playingHandleEvent(sf::Event &event);
@@ -35,12 +42,12 @@ class Game
 		void mapEditorHandleEvent(sf::Event &event);
 		void mainMenuLoop();
 		void mainMenuHandleEvent(sf::Event &event);
+		void pauseMenuLoop();
+		void pauseMenuHandleEvent(sf::Event &event);
 
 		Menu keysMenu;
 		Menu mainMenu;
-
-
-
+		Menu pauseMenu;
 
 		void draw();
 

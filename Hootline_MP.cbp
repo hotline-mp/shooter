@@ -65,6 +65,7 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="mainMenu.cpp" />
 		<Unit filename="mapEditor.cpp" />
+		<Unit filename="pauseMenu.cpp" />
 		<Unit filename="sans.ttf" />
 		<Unit filename="vector.cpp" />
 		<Unit filename="vector.hpp" />

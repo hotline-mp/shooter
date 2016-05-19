@@ -172,12 +172,19 @@ void Game::playingLoop() {
 
 void Game::playingHandleEvent(sf::Event &event) {
 
-	if (!window.hasFocus()) {
-		return;
+	if ((event.type == sf::Event::KeyPressed &&
+				event.key.code == sf::Keyboard::Escape) ||
+			event.type == sf::Event::LostFocus)
+	{
+			previous_game_state.push_back(Playing);
+			next_game_state = PauseMenu;
+			std::cout << "menu" << std::endl;
 	}
+
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
-			next_game_state = MainMenu;
+			previous_game_state.push_back(Playing);
+			next_game_state = PauseMenu;
 			std::cout << "menu" << std::endl;
 		} else if (event.key.code == sf::Keyboard::F8) {
 			next_game_state = MapEditor;
@@ -201,8 +208,14 @@ int Game::run() {
         "Play",
 		"Options",
 		"Exit"
+	};
 
-        };
+	pauseMenu.title = "Pause Menu";
+	pauseMenu.items = {
+        "Resume",
+		"Options",
+		"Exit"
+	};
 
 	keysMenu.title = "Keys Menu";
 	keysMenu.items = {
@@ -250,6 +263,9 @@ int Game::run() {
                     case MainMenu:
                         mainMenuHandleEvent(event);
                         break;
+                    case PauseMenu:
+                        pauseMenuHandleEvent(event);
+                        break;
 					default:
 						std::cerr << "error: game state not found" << std::endl;
 						window.close();
@@ -275,6 +291,9 @@ int Game::run() {
 				break;
             case MainMenu:
                 mainMenuLoop();
+                break;
+            case PauseMenu:
+                pauseMenuLoop();
                 break;
 			default:
 				std::cerr << "error: game state not found" << std::endl;

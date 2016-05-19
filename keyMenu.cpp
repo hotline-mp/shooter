@@ -20,6 +20,7 @@ void Game::keysMenuLoop() {
 		text.setPosition((screen_w - r.width) / 2,
 				(screen_h - r.height) / 2);
 		window.draw(text);
+		text.setString("");
 	}
 }
 
@@ -38,7 +39,8 @@ void Game::keysMenuHandleEvent(sf::Event &event) {
 			waiting_for_input = false;
 		} else {
 			if (event.key.code == sf::Keyboard::Escape) {
-				next_game_state = Playing;
+				next_game_state = previous_game_state.back();
+				previous_game_state.pop_back();
 				std::cout << "exitmenu" << std::endl;
 			}
 			if (event.key.code == sf::Keyboard::Down) {

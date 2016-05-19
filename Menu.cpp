@@ -28,9 +28,11 @@ void Menu::draw(sf::RenderWindow &window) {
 			text.setStyle(sf::Text::Bold);
 		}
 		window.draw(text);
-		text.setPosition(x + 200, y);
-		text.setString(values[i]);
-		window.draw(text);
+		if (values.size() != 0) {
+			text.setPosition(x + 200, y);
+			text.setString(values[i]);
+			window.draw(text);
+		}
 		y += 30;
 	}
 }
