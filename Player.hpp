@@ -12,10 +12,10 @@ class Player : public Entity
 		void hit(sf::Vector2f direction);
 	private:
 		//sf::CircleShape shape{player_r};
-		sf::Texture texture;
+		sf::Texture legs;
 		sf::Texture body;
-		sf::Sprite sprite;
-		sf::Sprite jugador;
+		sf::Sprite piernas;
+		sf::Sprite torso;
 		void nextFrame();
 		std::vector<sf::IntRect> frames;
 		int frame;
