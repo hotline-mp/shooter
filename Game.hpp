@@ -17,14 +17,15 @@
 #include "Bullet.hpp"
 #include "Enemy.hpp"
 
+
 const int screen_w = 800;
 const int screen_h = 600;
 
 class Game
 {
 	private:
-		GameState game_state = Playing;
-		GameState next_game_state = Playing;
+		GameState game_state = MainMenu;
+		GameState next_game_state = MainMenu;
 
 		void playingLoop();
 		void playingHandleEvent(sf::Event &event);
@@ -32,10 +33,14 @@ class Game
 		void keysMenuHandleEvent(sf::Event &event);
 		void mapEditorLoop();
 		void mapEditorHandleEvent(sf::Event &event);
+		void mainMenuLoop();
+		void mainMenuHandleEvent(sf::Event &event);
 
 		Menu keysMenu;
+		Menu mainMenu;
 
-		sf::RenderWindow window;
+
+
 
 		void draw();
 
@@ -103,6 +108,7 @@ class Game
 	public:
 		Game();
 		int run();
+		sf::RenderWindow window;
 };
 
 #endif /* !GAME_H */

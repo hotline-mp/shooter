@@ -177,7 +177,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 	}
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
-			next_game_state = KeysMenu;
+			next_game_state = MainMenu;
 			std::cout << "menu" << std::endl;
 		} else if (event.key.code == sf::Keyboard::F8) {
 			next_game_state = MapEditor;
@@ -195,6 +195,14 @@ void Game::playingHandleEvent(sf::Event &event) {
 
 int Game::run() {
 	getConfig();
+
+	mainMenu.title = "Main Menu";
+	mainMenu.items = {
+        "Play",
+		"Options",
+		"Exit"
+
+        };
 
 	keysMenu.title = "Keys Menu";
 	keysMenu.items = {
@@ -239,6 +247,9 @@ int Game::run() {
 					case MapEditor:
 						mapEditorHandleEvent(event);
 						break;
+                    case MainMenu:
+                        mainMenuHandleEvent(event);
+                        break;
 					default:
 						std::cerr << "error: game state not found" << std::endl;
 						window.close();
@@ -262,6 +273,9 @@ int Game::run() {
 			case MapEditor:
 				mapEditorLoop();
 				break;
+            case MainMenu:
+                mainMenuLoop();
+                break;
 			default:
 				std::cerr << "error: game state not found" << std::endl;
 				window.close();

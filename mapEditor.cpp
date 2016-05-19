@@ -6,6 +6,15 @@
 #include <string>
 #include <cstdint>
 
+void Game::deselect_all(){
+
+    selected_enemy = -1;
+    selected_poly = -1;
+    selected_point = -1;
+    selected_spawn_pos = -1;
+    selected_warp_pos = -1;
+
+}
 
 void Game::mapEditorLoop() {
 	sf::Time time_now = clock.getElapsedTime();
@@ -212,7 +221,7 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			}
         } else if (event.mouseButton.button == sf::Mouse::Left) {
 			int previous = selected_point;
-			deselect_all();
+            deselect_all();
 			drag_start_coords = mouse_coords;
 			if (testClickedPoint(map, mouse_coords, selected_poly, selected_point)) {
 				clicked_on_already_selected_point = (selected_point == previous);

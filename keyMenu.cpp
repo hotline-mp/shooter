@@ -3,6 +3,7 @@
 #include <vector>
 #include "KeyNames.hpp"
 
+
 void Game::keysMenuLoop() {
 	keysMenu.values = {
 		keyNames[keys["up"]],

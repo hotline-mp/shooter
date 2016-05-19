@@ -60,11 +60,10 @@
 		<Unit filename="Menu.hpp" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.hpp" />
-		<Unit filename="StartMenu.cpp" />
-		<Unit filename="StartMenu.hpp" />
 		<Unit filename="config.cpp" />
 		<Unit filename="keyMenu.cpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="mainMenu.cpp" />
 		<Unit filename="mapEditor.cpp" />
 		<Unit filename="sans.ttf" />
 		<Unit filename="vector.cpp" />
