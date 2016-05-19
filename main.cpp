@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "Game.hpp"
-#include "StartMenu.hpp"
+
 
 int main()
 {
