@@ -6,7 +6,7 @@
 #include <string>
 #include <cstdint>
 
-void Game::deselect_all(){
+void Game::deselect_all() {
 
     selected_enemy = -1;
     selected_poly = -1;
@@ -14,6 +14,11 @@ void Game::deselect_all(){
     selected_spawn_pos = -1;
     selected_warp_pos = -1;
 
+}
+
+sf::Vector2f get_mouse_coords(sf::RenderWindow &window) {
+	sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+	return window.mapPixelToCoords(pixelPos);
 }
 
 void Game::mapEditorLoop() {
@@ -29,7 +34,7 @@ void Game::mapEditorLoop() {
 	updateDirection();
 
 	// dragging
-	sf::Vector2f mouse_coords(sf::Mouse::getPosition(window));
+	sf::Vector2f mouse_coords = get_mouse_coords(window);
 	mouse_coords -= camera;
 	if (selected_poly != -1 && selected_point != -1 && dragging) {
 		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
@@ -51,39 +56,14 @@ void Game::mapEditorLoop() {
 		warp_pos = mouse_coords;
 	}
 
-	camera += -player.moving * float(micros * vel);
+	//camera += -player.moving * float(micros * vel);
+	sf::View view = window.getView();
+	view.setCenter(view.getCenter() + player.moving * float(micros * vel));
+	window.setView(view);
 
 	//draw
 	window.clear(sf::Color::Cyan);
 
-	if (show_editor_help) {
-		text.setString("map editor. press esc to exit");
-		text.setPosition(0, 300);
-		window.draw(text);
-		text.setString("F1 to save");
-		text.setPosition(0, 325);
-		window.draw(text);
-		text.setString("F2 to load");
-		text.setPosition(0, 350);
-		window.draw(text);
-		char txt[200];
-		sprintf(txt, "map number: %d (F3/F4 to change)", map_n);
-		text.setString(txt);
-		//text.setString("map number: " + std::to_string(map_n) + " (F3/F4 to change)");
-		text.setPosition(0, 375);
-		window.draw(text);
-		text.setString("F5 to show/hide help");
-		text.setPosition(0, 400);
-		text.setString("Right click to add nodes, 1 to add enemies");
-		text.setPosition(0, 425);
-		window.draw(text);
-	}
-	if (clock.getElapsedTime() < error_message_timeout) {
-		text.setString(error_message);
-		text.setPosition(0, 0);
-		window.draw(text);
-	}
-	text.setString("");
 	for (int i=0; i<(int)map.size(); i++) {
 		sf::ConvexShape polygon;
 		polygon.setPointCount(map[i].size());
@@ -146,6 +126,45 @@ void Game::mapEditorLoop() {
 		point.setPosition(warp_pos + camera);
 		window.draw(point);
 	}
+	// draw text
+	view = window.getView();
+	// view for text
+	sf::View view0 = view;
+	view0.setCenter(view.getSize()/2.f);
+	window.setView(view0);
+
+	if (show_editor_help) {
+		text.setString("map editor. press esc to exit");
+		text.setPosition(0, 300);
+		window.draw(text);
+		text.setString("F1 to save");
+		text.setPosition(0, 325);
+		window.draw(text);
+		text.setString("F2 to load");
+		text.setPosition(0, 350);
+		window.draw(text);
+		char txt[200];
+		sprintf(txt, "map number: %d (F3/F4 to change)", map_n);
+		text.setString(txt);
+		//text.setString("map number: " + std::to_string(map_n) + " (F3/F4 to change)");
+		text.setPosition(0, 375);
+		window.draw(text);
+		text.setString("F5 to show/hide help");
+		text.setPosition(0, 400);
+		window.draw(text);
+		text.setString("Right click to add nodes, 1 to add enemies");
+		text.setPosition(0, 425);
+		window.draw(text);
+	}
+	if (clock.getElapsedTime() < error_message_timeout) {
+		text.setString(error_message);
+		text.setPosition(0, 0);
+		window.draw(text);
+	}
+	text.setString("");
+	// normal view
+	window.setView(view);
+
 }
 
 bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> map,
@@ -164,10 +183,11 @@ bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> map,
 }
 
 void Game::mapEditorHandleEvent(sf::Event &event) {
-	sf::Vector2f mouse_coords(sf::Mouse::getPosition(window));
+	sf::Vector2f mouse_coords = get_mouse_coords(window);
 	mouse_coords -= camera;
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
+			window.setMouseCursorVisible(false);
 			next_game_state = Playing;
 			std::cout << "exitmapedit" << std::endl;
 		}

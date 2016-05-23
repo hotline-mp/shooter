@@ -6,6 +6,11 @@
 
 void Game::mainMenuLoop()
 {
+	sf::View view = window.getView();
+	sf::Vector2f size = view.getSize();
+	view.setCenter(size/2.f);
+	window.setView(view);
+
 	window.clear(sf::Color(0xCC, 0xFF, 0xEE));
 	mainMenu.draw(window);
 }

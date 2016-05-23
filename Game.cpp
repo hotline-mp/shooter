@@ -7,9 +7,27 @@
 #include "vector.hpp"
 
 Game::Game() : player(&clock, &window, &camera) {
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = 8;
+
     window.create(sf::VideoMode(screen_w, screen_h), "shooter demo",
-			sf::Style::Titlebar | sf::Style::Close);
+			//sf::Style::Titlebar | sf::Style::Close);
+			sf::Style::Fullscreen,
+			settings);
+	sf::Vector2u window_size = window.getSize();
+	sf::View view(sf::FloatRect(0, 0, screen_w, screen_h));
+	if (window_size.x > window_size.y) {
+		float scale_ratio = float(window_size.y) / screen_h;
+		float lr = screen_w * scale_ratio / window_size.x;
+		view.setViewport(sf::FloatRect(0.5f-lr/2, 0, lr, 1.f));
+	} else {
+		float scale_ratio = float(window_size.x) / screen_w;
+		float lr = screen_h * scale_ratio / window_size.y;
+		view.setViewport(sf::FloatRect(0, 0.5f-lr/2, 1.f, lr));
+	}
+	window.setView(view);
 	window.setVerticalSyncEnabled(true);
+	window.setMouseCursorVisible(false);
 }
 
 void Game::updateDirection() {
@@ -59,8 +77,10 @@ void Game::updateDirection() {
 #define COL_BOX 0
 void Game::update() {
 	updateDirection();
-	sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
-	sf::Vector2f v(mousePosition - player.position - camera);
+
+	sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+	sf::Vector2f v = window.mapPixelToCoords(pixelPos) - player.position;
+
 	float len = sqrt(powf(v.x, 2) + powf(v.y, 2));
 	// vector unitari que va del centre del jugador
 	// en direcció a on apuntem
@@ -103,7 +123,11 @@ void Game::update() {
 	// La camera ha de tenir el jugador sempre al centre de la pantalla, per tant:
 	// pos en pantalla = pos_jugador + camera = centre_pantalla - tamany_jugador
 	// camera = centre_pantalla - tamany_jugador - pos_jugador
-	camera = sf::Vector2f(screen_w/2, screen_h/2) - player.position;
+	//camera = sf::Vector2f(screen_w/2, screen_h/2) - player.position;
+	camera = sf::Vector2f(0, 0);
+	sf::View view = window.getView();
+	view.setCenter(player.position);
+	window.setView(view);
 }
 
 void Game::draw() {
@@ -134,6 +158,26 @@ void Game::draw() {
 		point.setPosition(warp_pos+camera);
 		window.draw(point);
 	}
+
+	sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+	sf::Vector2f mouse_pos = window.mapPixelToCoords(pixelPos);
+	//sf::Vector2f mouse_pos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
+	crosshair.setPosition(mouse_pos);
+	window.draw(crosshair);
+
+	for (int i=2; i<5; i++) {
+		sf::CircleShape point(1);
+		point.setOrigin(1, 1);
+		if (i%2) {
+			point.setFillColor(sf::Color::Black);
+		} else {
+			point.setFillColor(sf::Color::White);
+		}
+		sf::Vector2f v = (mouse_pos - (player.position+camera)) / 5.f * (float)i;
+		point.setPosition(player.position+camera+v);
+		window.draw(point);
+	}
+
 	if (clock.getElapsedTime() < flash_timeout) {
 		window.clear(sf::Color::Red);
 	}
@@ -142,8 +186,17 @@ void Game::draw() {
 void Game::playingLoop() {
 	update();
 
-	//window.clear(sf::Color::Cyan);
-	window.clear(sf::Color(0x59, 0x30, 0x1B));
+	// letterbox bg
+	window.clear(sf::Color::Black);
+
+	// view bg
+	sf::View view = window.getView();
+	sf::Vector2f size = view.getSize();
+	sf::RectangleShape rs(size);
+	rs.setOrigin(size/2.f);
+	rs.setPosition(view.getCenter());
+	rs.setFillColor(sf::Color(0x59, 0x30, 0x1B));
+	window.draw(rs);
 
 	if (dbg_enabled) {
 		const float dbg_r = 5.f;
@@ -187,6 +240,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 			next_game_state = PauseMenu;
 			std::cout << "menu" << std::endl;
 		} else if (event.key.code == sf::Keyboard::F8) {
+			window.setMouseCursorVisible(true);
 			next_game_state = MapEditor;
 			std::cout << "mapeditor" << std::endl;
 		}
@@ -241,6 +295,14 @@ int Game::run() {
 	loadMap(map_n);
 
 	player.position = spawn_pos;
+
+	if(!crosshair_texture.loadFromFile("crosshair.png")) {
+		exit(1);
+	}
+
+	crosshair.setTexture(crosshair_texture);
+	sf::Vector2u crosshair_size = crosshair_texture.getSize();
+	crosshair.setOrigin(crosshair_size.x/2, crosshair_size.y/2);
 
     while (window.isOpen())
     {

@@ -37,14 +37,18 @@ void Player::draw() {
 	if (!visible) {
 		return;
 	}
-	sf::Vector2f curPos = torso.getPosition();
-    sf::Vector2i position = sf::Mouse::getPosition(*window);
+	//sf::Vector2f curPos = torso.getPosition();
+    //sf::Vector2i position = sf::Mouse::getPosition(*window);
+
+	sf::Vector2i pixelPos = sf::Mouse::getPosition(*window);
+	sf::Vector2f mouse_pos = window->mapPixelToCoords(pixelPos);
+
     piernas.setTextureRect(frames[frame]);
 
     const float PI = 3.14159265;
 
-    float dx = curPos.x - position.x;
-    float dy = curPos.y - position.y;
+    float dx = position.x - mouse_pos.x;
+    float dy = position.y - mouse_pos.y;
 
     float rotation = (atan2(dy, dx)) * 180 / PI;
     float feet_rotation = (atan2(moving.y, moving.x)) * 180 / PI;

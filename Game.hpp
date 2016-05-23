@@ -94,6 +94,11 @@ class Game
 		sf::Vector2f spawn_pos;
 		sf::Vector2f warp_pos;
 
+		// crosshair
+
+		sf::Texture crosshair_texture;
+		sf::Sprite crosshair;
+
 		// editor
 		bool show_editor_help = true;
 		int selected_poly = -1;
