@@ -13,8 +13,8 @@ Game::Game() : player(&clock, &window) {
 	settings.antialiasingLevel = 8;
 
     window.create(sf::VideoMode(screen_w, screen_h), "shooter demo",
-			sf::Style::Titlebar | sf::Style::Close,
-			//sf::Style::Fullscreen,
+			//sf::Style::Titlebar | sf::Style::Close,
+			sf::Style::Fullscreen,
 			settings);
 	sf::Vector2u window_size = window.getSize();
 	sf::View view(sf::FloatRect(0, 0, screen_w, screen_h));
