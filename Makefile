@@ -11,7 +11,7 @@ TARGET = shooter
 OBJDIR = obj
 OBJECTS = $(addprefix $(OBJDIR)/, main.o Entity.o Player.o \
 	  Game.o Bullet.o Enemy.o Menu.o config.o keyMenu.o \
-	  mapEditor.o vector.o mainMenu.o pauseMenu.o )
+	  mapEditor.o vector.o mainMenu.o pauseMenu.o Particle.o )
 
 all: $(TARGET)
 

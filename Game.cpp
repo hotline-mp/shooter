@@ -4,6 +4,8 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <stdlib.h>
+#include <time.h>
 #include "vector.hpp"
 
 Game::Game() : player(&clock, &window) {
@@ -11,8 +13,8 @@ Game::Game() : player(&clock, &window) {
 	settings.antialiasingLevel = 8;
 
     window.create(sf::VideoMode(screen_w, screen_h), "shooter demo",
-			//sf::Style::Titlebar | sf::Style::Close);
-			sf::Style::Fullscreen,
+			sf::Style::Titlebar | sf::Style::Close,
+			//sf::Style::Fullscreen,
 			settings);
 	sf::Vector2u window_size = window.getSize();
 	sf::View view(sf::FloatRect(0, 0, screen_w, screen_h));
@@ -28,6 +30,8 @@ Game::Game() : player(&clock, &window) {
 	window.setView(view);
 	window.setVerticalSyncEnabled(true);
 	window.setMouseCursorVisible(false);
+
+	srand(time(NULL));
 }
 
 void Game::updateDirection() {
@@ -108,6 +112,10 @@ void Game::update() {
 		}
 	}
 
+	for (auto &part : particles) {
+        part.update(map);
+	}
+
 	if (enemies.size() == 0 &&
 			distancePointPoint(player.position, warp_pos) < 20) {
 		map_n += 1;
@@ -143,6 +151,9 @@ void Game::draw() {
 	}
 	for (Bullet &bullet : bullets) {
         bullet.draw();
+	}
+	for (Particle &part : particles) {
+        part.draw();
 	}
 	for (Enemy &enemy : enemies) {
         enemy.draw();
@@ -216,6 +227,8 @@ void Game::playingLoop() {
 				[](Bullet &b) { return !b.alive; }), bullets.end());
 	enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
 				[](Enemy &b) { return !b.alive; }), enemies.end());
+	particles.erase(std::remove_if(particles.begin(), particles.end(),
+				[](Particle &b) { return !b.alive; }), particles.end());
 	draw();
 }
 
@@ -242,10 +255,20 @@ void Game::playingHandleEvent(sf::Event &event) {
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed){
         if (event.mouseButton.button == sf::Mouse::Left){
-            Bullet bullet(&clock, &window);
-            bullet.position = bulletSpawnPosition();
-            bullet.moving = vecUnit(bullet.position - player.position);
+			sf::Vector2f pos = bulletSpawnPosition();
+    		sf::Vector2f vel = vecUnit(player.moving * player.vel +
+					(vecUnit(pos - player.position) * 0.002f)) * 0.002f;
+    		//sf::Vector2f vel = vecUnit(pos - player.position) * 0.002f;
+            Bullet bullet(&clock, &window, vel);
+            bullet.position = pos;
             bullets.push_back(bullet);
+			for (int i=-10; i<10; i++) {
+				sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
+					(0.0012f + (rand() % 10) / 100000.f);
+				Particle part(&clock, &window, 1, pvel, -0.000000005);
+				part.position = bullet.position;
+				particles.push_back(part);
+			}
         }
 	}
 }

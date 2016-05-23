@@ -15,12 +15,12 @@ class Entity
 		sf::Clock *clock;
 		sf::RenderWindow *window;
 		sf::Time lastUpdated;
-		float vel; // pixels / ms
 	public:
 		sf::Vector2f position;
 		sf::Vector2f moving; // direcció en la que s'intenta moure
 		sf::Vector2f target_movement;
 		sf::Vector2f facing; // vector unitari
+		float vel; // pixels / ms
 		float radius; // pixels
 		bool alive;
 		bool visible;

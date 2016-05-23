@@ -2,15 +2,12 @@
 #define BALA_H
 
 #include <SFML/Graphics.hpp>
-#include "Entity.hpp"
+#include <SFML/System/Vector2.hpp>
+#include "Particle.hpp"
 
-class Bullet : public Entity {
+class Bullet : public Particle {
 	public:
-		void draw();
-		Bullet(sf::Clock *clock, sf::RenderWindow *window);
-		void update(std::vector< std::vector<sf::Vector2f> > map);
-	private:
-		sf::CircleShape shape;
+		Bullet(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f vel);
 };
 
 #endif /* !BALA_H */

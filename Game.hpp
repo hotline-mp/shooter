@@ -73,6 +73,7 @@ class Game
 
 		std::vector< std::vector<sf::Vector2f> > map;
 
+		std::vector<Particle> particles;
 		std::vector<Bullet> bullets;
 		std::vector<Enemy> enemies;
 		std::vector<sf::Texture> textures;
