@@ -11,7 +11,7 @@ class Particle : public Entity {
 		sf::Vector2f vvel;
 		Particle(sf::Clock *clock, sf::RenderWindow *window, float radius);
 		Particle(sf::Clock *clock, sf::RenderWindow *window, float radius,
-				sf::Vector2f vel, float accel);
+				sf::Vector2f vel, float accel, sf::Color color=sf::Color::Black);
 		void update(std::vector< std::vector<sf::Vector2f> > map);
 	protected:
 		sf::CircleShape shape;

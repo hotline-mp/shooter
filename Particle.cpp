@@ -10,14 +10,14 @@ Particle::Particle(sf::Clock *clock, sf::RenderWindow *window, float radius) :
 }
 
 Particle::Particle(sf::Clock *clock, sf::RenderWindow *window, float radius,
-		sf::Vector2f vel, float accel) :
+		sf::Vector2f vel, float accel, sf::Color color) :
 	Entity(clock, window),
 	vvel(vel),
 	shape(radius),
 	accel(accel)
 {
 	this->radius = radius;
-	shape.setFillColor(sf::Color::Black);
+	shape.setFillColor(color);
 	shape.setOrigin(radius, radius);
 }
 

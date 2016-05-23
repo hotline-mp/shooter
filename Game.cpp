@@ -108,6 +108,15 @@ void Game::update() {
 			if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
 				enemy.alive = false;
 				bullet.alive = false;
+
+				for (int i=-20; i<20; i++) {
+					sf::Vector2f vel = bullet.vvel;
+					sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
+						(0.0004f + (rand() % 10) / 50000.f);
+					Particle part(&clock, &window, rand() % 2 + 1, pvel, -0.0000000005, sf::Color::Red);
+					part.position = enemy.position;
+					particles.push_back(part);
+				}
 			}
 		}
 	}
@@ -147,6 +156,7 @@ void Game::draw() {
 			polygon.setPoint(i, point);
 			i++;
 		}
+		polygon.setFillColor(sf::Color::Black);
 		window.draw(polygon);
 	}
 	for (Bullet &bullet : bullets) {
@@ -202,7 +212,8 @@ void Game::playingLoop() {
 	sf::RectangleShape rs(size);
 	rs.setOrigin(size/2.f);
 	rs.setPosition(view.getCenter());
-	rs.setFillColor(sf::Color(0x59, 0x30, 0x1B));
+	//rs.setFillColor(sf::Color(0x59, 0x30, 0x1B));
+	rs.setFillColor(sf::Color::White);
 	window.draw(rs);
 
 	if (dbg_enabled) {
