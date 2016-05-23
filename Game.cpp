@@ -144,9 +144,9 @@ void Game::update() {
 }
 
 void Game::draw() {
-	text.setPosition(0, 300);
+//	text.setPosition(0, 300);
 //	text.setString("hullo " + std::to_string(player.position.y));
-	window.draw(text);
+//	window.draw(text);
 	player.draw();
 	for (auto &points : map) {
 		sf::ConvexShape polygon;
@@ -176,9 +176,9 @@ void Game::draw() {
 		window.draw(point);
 	}
 
+	// crosshair
 	sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
 	sf::Vector2f mouse_pos = window.mapPixelToCoords(pixelPos);
-	//sf::Vector2f mouse_pos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
 	crosshair.setPosition(mouse_pos);
 	window.draw(crosshair);
 
@@ -194,6 +194,22 @@ void Game::draw() {
 		point.setPosition(player.position+v);
 		window.draw(point);
 	}
+
+	// hud
+	sf::View view = window.getView();
+	sf::View view0 = view;
+	view0.setCenter(view.getSize()/2.f);
+	window.setView(view0);
+
+	text.setPosition(10, screen_h*4/5);
+	char buf[50];
+	sprintf(buf, "ammo: %d / %d %s", player.ammo, player.extra_ammo,
+			player.reloading ? "reloading..." : "");
+	text.setString(buf);
+	text.setColor(sf::Color(0xAA, 0x33, 0));
+	window.draw(text);
+
+	window.setView(view);
 
 	if (clock.getElapsedTime() < flash_timeout) {
 		window.clear(sf::Color::Red);
@@ -263,22 +279,29 @@ void Game::playingHandleEvent(sf::Event &event) {
 			window.setMouseCursorVisible(true);
 			next_game_state = MapEditor;
 			std::cout << "mapeditor" << std::endl;
+		} else if (event.key.code == (sf::Keyboard::Key)keys["reload"] &&
+				player.extra_ammo > 0) {
+			player.reloading = true;
+			player.reload_timer = clock.getElapsedTime() + sf::milliseconds(1000);
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed){
         if (event.mouseButton.button == sf::Mouse::Left){
-			sf::Vector2f pos = bulletSpawnPosition();
-    		sf::Vector2f vel = vecUnit(player.moving * player.vel +
-					(vecUnit(pos - player.position) * 0.002f)) * 0.002f;
-    		//sf::Vector2f vel = vecUnit(pos - player.position) * 0.002f;
-            Bullet bullet(&clock, &window, vel);
-            bullet.position = pos;
-            bullets.push_back(bullet);
-			for (int i=-10; i<10; i++) {
-				sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
-					(0.0012f + (rand() % 10) / 100000.f);
-				Particle part(&clock, &window, 1, pvel, -0.000000005);
-				part.position = bullet.position;
-				particles.push_back(part);
+			if (player.ammo > 0 && !player.reloading) {
+				player.ammo -= 1;
+				sf::Vector2f pos = bulletSpawnPosition();
+				sf::Vector2f vel = vecUnit(player.moving * player.vel +
+						(vecUnit(pos - player.position) * 0.002f)) * 0.002f;
+				//sf::Vector2f vel = vecUnit(pos - player.position) * 0.002f;
+				Bullet bullet(&clock, &window, vel);
+				bullet.position = pos;
+				bullets.push_back(bullet);
+				for (int i=-10; i<10; i++) {
+					sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
+						(0.0012f + (rand() % 10) / 100000.f);
+					Particle part(&clock, &window, 1, pvel, -0.000000005);
+					part.position = bullet.position;
+					particles.push_back(part);
+				}
 			}
         }
 	}
@@ -306,7 +329,8 @@ int Game::run() {
 		"up",
 		"down",
 		"left",
-		"right"
+		"right",
+		"reload"
 	};
 
 	if (!font.loadFromFile("sans.ttf")) {

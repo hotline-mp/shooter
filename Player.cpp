@@ -1,10 +1,15 @@
 #include <math.h>
+#include <algorithm>
 #include "Player.hpp"
 #include "vector.hpp"
 
 Player::Player(sf::Clock *clock, sf::RenderWindow *window) :
 	Entity(clock, window, 0.0003f, 20.f)
 {
+	ammo = mag_size;
+	extra_ammo = mag_size*2;
+	reloading = false;
+
     if(!body.loadFromFile("playertorso.png")) {
 		exit(1);
     }
@@ -83,6 +88,13 @@ void Player::update() {
     } else if ((time_now - lastAnimFrame).asMilliseconds() > 50) {
         nextFrame();
         lastAnimFrame = time_now;
+	}
+
+	if (reloading && reload_timer < time_now) {
+		reloading = false;
+		int diff = std::min(mag_size, extra_ammo) - ammo;
+		ammo = mag_size;
+		extra_ammo -= diff;
 	}
 }
 

@@ -9,7 +9,8 @@ void Game::keysMenuLoop() {
 		keyNames[keys["up"]],
 		keyNames[keys["down"]],
 		keyNames[keys["left"]],
-		keyNames[keys["right"]]
+		keyNames[keys["right"]],
+		keyNames[keys["reload"]]
 	};
 
 	window.clear(sf::Color::Cyan);
@@ -31,7 +32,8 @@ void Game::keysMenuHandleEvent(sf::Event &event) {
 				"up",
 				"down",
 				"left",
-				"right"
+				"right",
+				"reload"
 			};
 			keys[ikeys[keysMenu.selected]] = event.key.code;
 			std::cout << "key " << keysMenu.items[keysMenu.selected] << "= "

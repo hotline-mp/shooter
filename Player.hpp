@@ -3,6 +3,7 @@
 
 #include "Entity.hpp"
 
+const int mag_size = 7;
 class Player : public Entity
 {
 	public:
@@ -10,6 +11,11 @@ class Player : public Entity
 		void draw();
 		void update();
 		void hit(sf::Vector2f direction);
+		int ammo;
+		int extra_ammo;
+		int hp;
+		bool reloading;
+		sf::Time reload_timer;
 	private:
 		//sf::CircleShape shape{player_r};
 		sf::Texture legs;

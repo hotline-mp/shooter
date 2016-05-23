@@ -11,6 +11,7 @@ int Game::getConfig() {
 	keys["down"] = sf::Keyboard::S;
 	keys["left"] = sf::Keyboard::A;
 	keys["right"] = sf::Keyboard::D;
+	keys["reload"] = sf::Keyboard::R;
 
 	try
 	{
@@ -30,7 +31,7 @@ int Game::getConfig() {
 		return 1;
 	}
 
-	std::vector<std::string> to_read {"up", "down", "left", "right"};
+	std::vector<std::string> to_read {"up", "down", "left", "right", "reload"};
 	for (std::string key : to_read) {
 		try {
 			keys[key] = cfg.lookup(key);
