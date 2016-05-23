@@ -35,7 +35,6 @@ void Game::mapEditorLoop() {
 
 	// dragging
 	sf::Vector2f mouse_coords = get_mouse_coords(window);
-	mouse_coords -= camera;
 	if (selected_poly != -1 && selected_point != -1 && dragging) {
 		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
 			map[selected_poly][selected_point] = mouse_coords;
@@ -56,7 +55,6 @@ void Game::mapEditorLoop() {
 		warp_pos = mouse_coords;
 	}
 
-	//camera += -player.moving * float(micros * vel);
 	sf::View view = window.getView();
 	view.setCenter(view.getCenter() + player.moving * float(micros * vel));
 	window.setView(view);
@@ -68,7 +66,7 @@ void Game::mapEditorLoop() {
 		sf::ConvexShape polygon;
 		polygon.setPointCount(map[i].size());
 		for (int j=0; j<(int)map[i].size(); j++) {
-			polygon.setPoint(j, map[i][j] + camera);
+			polygon.setPoint(j, map[i][j]);
 		}
 		if (i == selected_poly) {
 			polygon.setFillColor(sf::Color::Green);
@@ -86,7 +84,7 @@ void Game::mapEditorLoop() {
 					point.setFillColor(sf::Color::Red);
 				}
 			}
-			point.setPosition(map[i][j] + camera);
+			point.setPosition(map[i][j]);
 			window.draw(point);
 		}
 	}
@@ -97,33 +95,33 @@ void Game::mapEditorLoop() {
 			sf::CircleShape point(3);
 			point.setOrigin(3, 3);
 			point.setFillColor(sf::Color::Yellow);
-			point.setPosition(enemies[selected_enemy].position + camera);
+			point.setPosition(enemies[selected_enemy].position);
 			window.draw(point);
 	}
 	// draw spawn point
 	sf::CircleShape point(10);
 	point.setOrigin(10, 10);
 	point.setFillColor(sf::Color::Yellow);
-	point.setPosition(spawn_pos + camera);
+	point.setPosition(spawn_pos);
 	window.draw(point);
 	if (selected_spawn_pos != -1) {
 		point.setRadius(3);
 		point.setOrigin(3, 3);
 		point.setFillColor(sf::Color::Red);
-		point.setPosition(spawn_pos + camera);
+		point.setPosition(spawn_pos);
 		window.draw(point);
 	}
 	// draw warp point
 	point.setRadius(10);
 	point.setOrigin(10, 10);
 	point.setFillColor(sf::Color(0xFF, 0xAA, 0xAA));
-	point.setPosition(warp_pos + camera);
+	point.setPosition(warp_pos);
 	window.draw(point);
 	if (selected_warp_pos != -1) {
 		point.setRadius(3);
 		point.setOrigin(3, 3);
 		point.setFillColor(sf::Color::Red);
-		point.setPosition(warp_pos + camera);
+		point.setPosition(warp_pos);
 		window.draw(point);
 	}
 	// draw text
@@ -184,7 +182,6 @@ bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> map,
 
 void Game::mapEditorHandleEvent(sf::Event &event) {
 	sf::Vector2f mouse_coords = get_mouse_coords(window);
-	mouse_coords -= camera;
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
 			window.setMouseCursorVisible(false);
@@ -192,7 +189,7 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			std::cout << "exitmapedit" << std::endl;
 		}
 		if (event.key.code == sf::Keyboard::Num1) {
-			enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
+			enemies.push_back(Enemy(&textures[0], &clock, &window));
 			enemies[enemies.size()-1].position = mouse_coords;
 		}
 		if (event.key.code == sf::Keyboard::Delete) {
@@ -394,7 +391,7 @@ int Game::loadMap(std::string name) {
 			map[map.size()-1].push_back(p);
 		} else if (c == 'e') {
 			sf::Vector2f p = read_point(file, "enemy");
-			enemies.push_back(Enemy(&textures[0], &clock, &window, &camera));
+			enemies.push_back(Enemy(&textures[0], &clock, &window));
 			enemies[enemies.size()-1].position = p;
 		} else if (c == 's') {
 			spawn_pos = read_point(file);

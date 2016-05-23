@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "vector.hpp"
 
-Game::Game() : player(&clock, &window, &camera) {
+Game::Game() : player(&clock, &window) {
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 8;
 
@@ -120,11 +120,7 @@ void Game::update() {
 		player.position = spawn_pos;
 	}
 
-	// La camera ha de tenir el jugador sempre al centre de la pantalla, per tant:
-	// pos en pantalla = pos_jugador + camera = centre_pantalla - tamany_jugador
-	// camera = centre_pantalla - tamany_jugador - pos_jugador
-	//camera = sf::Vector2f(screen_w/2, screen_h/2) - player.position;
-	camera = sf::Vector2f(0, 0);
+	// el jugador al centre de la pantalla
 	sf::View view = window.getView();
 	view.setCenter(player.position);
 	window.setView(view);
@@ -140,7 +136,7 @@ void Game::draw() {
 		polygon.setPointCount(points.size());
 		int i=0;
 		for (auto &point : points) {
-			polygon.setPoint(i, point + camera);
+			polygon.setPoint(i, point);
 			i++;
 		}
 		window.draw(polygon);
@@ -155,7 +151,7 @@ void Game::draw() {
 		sf::CircleShape point(10);
 		point.setOrigin(10, 10);
 		point.setFillColor(sf::Color::Green);
-		point.setPosition(warp_pos+camera);
+		point.setPosition(warp_pos);
 		window.draw(point);
 	}
 
@@ -173,8 +169,8 @@ void Game::draw() {
 		} else {
 			point.setFillColor(sf::Color::White);
 		}
-		sf::Vector2f v = (mouse_pos - (player.position+camera)) / 5.f * (float)i;
-		point.setPosition(player.position+camera+v);
+		sf::Vector2f v = (mouse_pos - (player.position)) / 5.f * (float)i;
+		point.setPosition(player.position+v);
 		window.draw(point);
 	}
 
@@ -209,9 +205,9 @@ void Game::playingLoop() {
 		sf::Vector2f vplayer_r(player.radius, player.radius);
 		moving_dbg.setPosition(
 				player.position + player.moving * player.radius -
-				vdbg_r + camera);
+				vdbg_r);
 		facing_dbg.setPosition(player.position +
-				player.facing * player.radius - vdbg_r + camera);
+				player.facing * player.radius - vdbg_r);
 		window.draw(moving_dbg);
 		window.draw(facing_dbg);
 	}
@@ -246,7 +242,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed){
         if (event.mouseButton.button == sf::Mouse::Left){
-            Bullet bullet(&clock, &window, &camera);
+            Bullet bullet(&clock, &window);
             bullet.position = bulletSpawnPosition();
             bullet.moving = vecUnit(bullet.position - player.position);
             bullets.push_back(bullet);
@@ -286,8 +282,6 @@ int Game::run() {
 	text.setFont(font);
 	text.setCharacterSize(24);
 	text.setColor(sf::Color::Black);
-
-	camera = sf::Vector2f(0, 0);
 
 	textures.push_back(sf::Texture());
 	textures[0].loadFromFile("enemy1.png");

@@ -11,7 +11,7 @@
 class Enemy : public Entity
 {
 	public:
-		Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera);
+		Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window);
 		void draw();
 		//void update();
 		void update(Player player, std::vector< std::vector<sf::Vector2f> > map);

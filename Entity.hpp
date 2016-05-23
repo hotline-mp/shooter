@@ -14,7 +14,6 @@ class Entity
 		// All of the objects pointed to here shall outlive the Entity
 		sf::Clock *clock;
 		sf::RenderWindow *window;
-		sf::Vector2f *camera;
 		sf::Time lastUpdated;
 		float vel; // pixels / ms
 	public:
@@ -34,13 +33,13 @@ class Entity
 		void collisions(std::vector<sf::Vector2f> polygon);
 		void collisions(std::vector< std::vector<sf::Vector2f> > map);
 
-		Entity(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
-			clock(clock), window(window), camera(camera), vel(0.0003f), radius(30.f),
+		Entity(sf::Clock *clock, sf::RenderWindow *window) :
+			clock(clock), window(window), vel(0.0003f), radius(30.f),
 			alive(true), visible(true) {};
 	protected:
-		Entity(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera,
+		Entity(sf::Clock *clock, sf::RenderWindow *window,
 				float vel, float radius) :
-			clock(clock), window(window), camera(camera), vel(vel), radius(radius),
+			clock(clock), window(window), vel(vel), radius(radius),
 			alive(true), visible(true) {};
 };
 

@@ -77,8 +77,6 @@ class Game
 		std::vector<Enemy> enemies;
 		std::vector<sf::Texture> textures;
 
-		sf::Vector2f camera;
-
 		sf::Clock clock;
 
 		Player player;

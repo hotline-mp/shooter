@@ -3,8 +3,8 @@
 #include "Bullet.hpp"
 #include "vector.hpp"
 
-Bullet::Bullet(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
-	Entity(clock, window, camera, 0.001f /*vel*/, 5 /*radius*/),
+Bullet::Bullet(sf::Clock *clock, sf::RenderWindow *window) :
+	Entity(clock, window, 0.001f /*vel*/, 5 /*radius*/),
 	shape(radius)
 {
 	shape.setFillColor(sf::Color::Black);
@@ -12,7 +12,7 @@ Bullet::Bullet(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera)
 }
 
 void Bullet::draw() {
-	shape.setPosition(position + *camera);
+	shape.setPosition(position);
 	window->draw(shape);
 }
 

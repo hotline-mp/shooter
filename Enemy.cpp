@@ -2,9 +2,8 @@
 #include "Player.hpp"
 #include "vector.hpp"
 
-Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window,
-		sf::Vector2f *camera) :
-	Entity(clock, window, camera, 0.00015f, 30.f)
+Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window) :
+	Entity(clock, window, 0.00015f, 30.f)
 {
 	//if (!texture.loadFromFile("enemy1.png")) {
 	//if (!texture.loadFromFile("player.png")) {
@@ -30,7 +29,7 @@ void Enemy::draw() {
 	if (!visible) {
 		return;
 	}
-    sprite.setPosition(position + *camera);
+    sprite.setPosition(position);
     sprite.setTextureRect(frames[frame]);
 
 	window->draw(sprite);

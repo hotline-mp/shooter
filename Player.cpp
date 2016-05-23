@@ -2,8 +2,8 @@
 #include "Player.hpp"
 #include "vector.hpp"
 
-Player::Player(sf::Clock *clock, sf::RenderWindow *window, sf::Vector2f *camera) :
-	Entity(clock, window, camera, 0.0003f, 20.f)
+Player::Player(sf::Clock *clock, sf::RenderWindow *window) :
+	Entity(clock, window, 0.0003f, 20.f)
 {
     if(!body.loadFromFile("playertorso.png")) {
 		exit(1);
@@ -59,8 +59,8 @@ void Player::draw() {
 
 	piernas.setRotation(feet_rotation);
 	torso.setRotation(rotation);
-    piernas.setPosition(this->position + *camera);
-    torso.setPosition(this->position + *camera);
+    piernas.setPosition(this->position);
+    torso.setPosition(this->position);
 	window->draw(piernas);
 	window->draw(torso);
 }
