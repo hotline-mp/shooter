@@ -58,6 +58,8 @@
 		<Unit filename="KeyNames.hpp" />
 		<Unit filename="Menu.cpp" />
 		<Unit filename="Menu.hpp" />
+		<Unit filename="Particle.cpp" />
+		<Unit filename="Particle.hpp" />
 		<Unit filename="Player.cpp" />
 		<Unit filename="Player.hpp" />
 		<Unit filename="config.cpp" />
