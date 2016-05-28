@@ -93,7 +93,7 @@ void Player::update() {
 	if (reloading && reload_timer < time_now) {
 		reloading = false;
 		int diff = std::min(mag_size, extra_ammo) - ammo;
-		ammo = mag_size;
+		ammo += diff;
 		extra_ammo -= diff;
 	}
 }

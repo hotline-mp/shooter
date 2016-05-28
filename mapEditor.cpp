@@ -373,8 +373,10 @@ int Game::loadMap(std::string name) {
 		std::cout << head;
 		return 2;
 	}
-	map = std::vector< std::vector<sf::Vector2f> >();
-	enemies = std::vector<Enemy>();
+	map.clear();
+	enemies.clear();
+	bullets.clear();
+	knives.clear();
 	while (true) {
 		char c;
 		file.read(&c, 1);

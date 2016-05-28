@@ -14,9 +14,11 @@
 #include "Player.hpp"
 #include "GameState.hpp"
 #include "Menu.hpp"
+#include "Particle.hpp"
 #include "Bullet.hpp"
 #include "Enemy.hpp"
-
+#include "Grenade.hpp"
+#include "Knife.hpp"
 
 const int screen_w = 800;
 const int screen_h = 600;
@@ -53,7 +55,9 @@ class Game
 
 		void update();
 		void updateDirection();
-		sf::Vector2f bulletSpawnPosition();
+		sf::Vector2f bulletSpawnPosition(bool &possible);
+
+		void splashBlood(Enemy &enemy, sf::Vector2f vel);
 
 		int getConfig();
 		int saveConfig();
@@ -77,6 +81,8 @@ class Game
 		std::vector<Bullet> bullets;
 		std::vector<Enemy> enemies;
 		std::vector<sf::Texture> textures;
+		std::vector<Grenade> grenades;
+		std::vector<Knife> knives;
 
 		sf::Clock clock;
 

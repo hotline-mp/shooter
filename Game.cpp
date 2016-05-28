@@ -78,6 +78,16 @@ void Game::updateDirection() {
 	player.setMoving(x, y);
 }
 
+void Game::splashBlood(Enemy &enemy, sf::Vector2f vel) {
+	for (int i=-20; i<20; i++) {
+		sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
+			(0.0004f + (rand() % 10) / 50000.f);
+		Particle part(&clock, &window, rand() % 2 + 1, pvel, -0.0000000005, sf::Color::Red);
+		part.position = enemy.position;
+		particles.push_back(part);
+	}
+}
+
 #define COL_BOX 0
 void Game::update() {
 	updateDirection();
@@ -109,20 +119,28 @@ void Game::update() {
 				enemy.alive = false;
 				bullet.alive = false;
 
-				for (int i=-20; i<20; i++) {
-					sf::Vector2f vel = bullet.vvel;
-					sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
-						(0.0004f + (rand() % 10) / 50000.f);
-					Particle part(&clock, &window, rand() % 2 + 1, pvel, -0.0000000005, sf::Color::Red);
-					part.position = enemy.position;
-					particles.push_back(part);
-				}
+				splashBlood(enemy, bullet.vvel);
 			}
 		}
 	}
 
 	for (auto &part : particles) {
         part.update(map);
+	}
+
+	for (auto &knife : knives) {
+        knife.update(map);
+		if (distancePointPoint(knife.position, player.position) < player.radius + 3) {
+			knife.alive = false;
+		}
+		for (auto &enemy : enemies) {
+			if (knife.alive && knife.vvel.x != 0 && knife.vvel.y != 0 &&
+					distancePointPoint(knife.position, enemy.position) < enemy.radius) {
+				enemy.alive = false;
+
+				splashBlood(enemy, knife.vvel);
+			}
+		}
 	}
 
 	if (enemies.size() == 0 &&
@@ -167,6 +185,9 @@ void Game::draw() {
 	}
 	for (Enemy &enemy : enemies) {
         enemy.draw();
+	}
+	for (Knife &knife : knives) {
+        knife.draw();
 	}
 	if (enemies.size() == 0) {
 		sf::CircleShape point(10);
@@ -256,6 +277,8 @@ void Game::playingLoop() {
 				[](Enemy &b) { return !b.alive; }), enemies.end());
 	particles.erase(std::remove_if(particles.begin(), particles.end(),
 				[](Particle &b) { return !b.alive; }), particles.end());
+	knives.erase(std::remove_if(knives.begin(), knives.end(),
+				[](Knife &b) { return !b.alive; }), knives.end());
 	draw();
 }
 
@@ -284,11 +307,15 @@ void Game::playingHandleEvent(sf::Event &event) {
 			player.reloading = true;
 			player.reload_timer = clock.getElapsedTime() + sf::milliseconds(1000);
 		}
-	} else if (event.type == sf::Event::MouseButtonPressed){
-        if (event.mouseButton.button == sf::Mouse::Left){
+	} else if (event.type == sf::Event::MouseButtonPressed) {
+        if (event.mouseButton.button == sf::Mouse::Left) {
 			if (player.ammo > 0 && !player.reloading) {
 				player.ammo -= 1;
-				sf::Vector2f pos = bulletSpawnPosition();
+				bool possible;
+				sf::Vector2f pos = bulletSpawnPosition(possible);
+				if (!possible) {
+					return;
+				}
 				sf::Vector2f vel = vecUnit(player.moving * player.vel +
 						(vecUnit(pos - player.position) * 0.002f)) * 0.002f;
 				//sf::Vector2f vel = vecUnit(pos - player.position) * 0.002f;
@@ -303,7 +330,20 @@ void Game::playingHandleEvent(sf::Event &event) {
 					particles.push_back(part);
 				}
 			}
-        }
+        } else if (event.mouseButton.button == sf::Mouse::Right) {
+			if (knives.size() == 0) {
+				bool possible;
+				sf::Vector2f pos = bulletSpawnPosition(possible);
+				if (!possible) {
+					return;
+				}
+				sf::Vector2f vel = vecUnit(player.moving * player.vel +
+						(vecUnit(pos - player.position) * 0.002f)) * 0.002f;
+				Knife knife(&textures[2], &clock, &window, vel);
+				knife.position = pos;
+				knives.push_back(knife);
+			}
+		}
 	}
 }
 
@@ -343,6 +383,12 @@ int Game::run() {
 
 	textures.push_back(sf::Texture());
 	textures[0].loadFromFile("enemy1.png");
+
+	textures.push_back(sf::Texture());
+	textures[1].loadFromFile("he_grenade.png");
+
+	textures.push_back(sf::Texture());
+	textures[2].loadFromFile("knife.png");
 
 	loadMap(map_n);
 
@@ -421,7 +467,15 @@ int Game::run() {
 	return 0;
 }
 
-sf::Vector2f Game::bulletSpawnPosition(){
-    return (player.position + player.facing * (player.radius * 2));
+sf::Vector2f Game::bulletSpawnPosition(bool &possible){
+	possible = true;
+	sf::Vector2f pos = player.position + player.facing * (player.radius * 2);
+	for (auto &polygon : map) {
+		if (isPointInPoly(pos, polygon)) {
+			possible = false;
+			break;
+		}
+	}
+    return pos;
 }
 

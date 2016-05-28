@@ -99,3 +99,35 @@ bool lineCrossesPoly(sf::Vector2f A, sf::Vector2f B,
 	return false;
 }
 
+bool circleCrossingPolygonAxis(sf::Vector2f point, float radius,
+		std::vector<sf::Vector2f> polygon) {
+	// iterem pels punts de dos en dos (segment a segment)
+	for (int i=0; i<(int)polygon.size(); i++) {
+		sf::Vector2f pointA = polygon[i];
+		sf::Vector2f pointB;
+		if (i == (int)polygon.size()-1) {
+			pointB = polygon[0];
+		} else {
+			pointB = polygon[i+1];
+		}
+		sf::Vector2f axis = pointB - pointA;
+		sf::Vector2f axisUnit = vecUnit(axis);
+
+		float pointCp = dotProduct(point, axisUnit);
+		float pointAp = pointCp + radius;
+		float pointBp = pointCp - radius;
+		float segmentAp = dotProduct(pointA, axisUnit);
+		float segmentBp = dotProduct(pointB, axisUnit);
+		// si ni un ni altre estan en mig, aquest costat falla i per tant no talla
+		if ((between(pointAp, segmentAp, segmentBp) ||
+					between(pointBp, segmentAp, segmentBp)) &&
+				distanceLinePoint(pointA, pointB, point) < radius) {
+			// Oh deu meu, estic fent un return dins un for sense fer un
+			// recorregut complet! A l'infern directe, no?
+			return true;
+		}
+	}
+	return false;
+}
+
+
