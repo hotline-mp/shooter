@@ -19,6 +19,7 @@
 #include "Enemy.hpp"
 #include "Grenade.hpp"
 #include "Knife.hpp"
+#include "Magazine.hpp"
 
 const int screen_w = 800;
 const int screen_h = 600;
@@ -83,6 +84,7 @@ class Game
 		std::vector<sf::Texture> textures;
 		std::vector<Grenade> grenades;
 		std::vector<Knife> knives;
+		std::vector<Magazine> magazines;
 
 		sf::Clock clock;
 

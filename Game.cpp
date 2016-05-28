@@ -117,9 +117,13 @@ void Game::update() {
 		for (auto &enemy : enemies) {
 			if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
 				enemy.alive = false;
-				bullet.alive = false;
+				//bullet.alive = false;
 
 				splashBlood(enemy, bullet.vvel);
+				if (rand() % 10 == 0) {
+					Magazine mag(&textures[3], &clock, &window, enemy.position);
+					magazines.push_back(mag);
+				}
 			}
 		}
 	}
@@ -137,9 +141,20 @@ void Game::update() {
 			if (knife.alive && knife.vvel.x != 0 && knife.vvel.y != 0 &&
 					distancePointPoint(knife.position, enemy.position) < enemy.radius) {
 				enemy.alive = false;
-
 				splashBlood(enemy, knife.vvel);
+
+				if (rand() % 6 == 0) {
+					Magazine mag(&textures[3], &clock, &window, enemy.position);
+					magazines.push_back(mag);
+				}
 			}
+		}
+	}
+
+	for (auto &mag : magazines) {
+		if (distancePointPoint(mag.position, player.position) < player.radius + 3) {
+			mag.alive = false;
+			player.extra_ammo += mag_size;
 		}
 	}
 
@@ -165,7 +180,9 @@ void Game::draw() {
 //	text.setPosition(0, 300);
 //	text.setString("hullo " + std::to_string(player.position.y));
 //	window.draw(text);
-	player.draw();
+	for (Knife &knife : knives) {
+        knife.draw();
+	}
 	for (auto &points : map) {
 		sf::ConvexShape polygon;
 		polygon.setPointCount(points.size());
@@ -177,6 +194,10 @@ void Game::draw() {
 		polygon.setFillColor(sf::Color::Black);
 		window.draw(polygon);
 	}
+	for (Magazine &mag : magazines) {
+        mag.draw();
+	}
+	player.draw();
 	for (Bullet &bullet : bullets) {
         bullet.draw();
 	}
@@ -185,9 +206,6 @@ void Game::draw() {
 	}
 	for (Enemy &enemy : enemies) {
         enemy.draw();
-	}
-	for (Knife &knife : knives) {
-        knife.draw();
 	}
 	if (enemies.size() == 0) {
 		sf::CircleShape point(10);
@@ -279,6 +297,8 @@ void Game::playingLoop() {
 				[](Particle &b) { return !b.alive; }), particles.end());
 	knives.erase(std::remove_if(knives.begin(), knives.end(),
 				[](Knife &b) { return !b.alive; }), knives.end());
+	magazines.erase(std::remove_if(magazines.begin(), magazines.end(),
+				[](Magazine &b) { return !b.alive; }), magazines.end());
 	draw();
 }
 
@@ -389,6 +409,9 @@ int Game::run() {
 
 	textures.push_back(sf::Texture());
 	textures[2].loadFromFile("knife.png");
+
+	textures.push_back(sf::Texture());
+	textures[3].loadFromFile("magazine.png");
 
 	loadMap(map_n);
 
