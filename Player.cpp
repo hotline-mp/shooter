@@ -6,9 +6,7 @@
 Player::Player(sf::Clock *clock, sf::RenderWindow *window) :
 	Entity(clock, window, 0.0003f, 20.f)
 {
-	ammo = mag_size;
-	extra_ammo = mag_size*2;
-	reloading = false;
+	reset();
 
     if(!body.loadFromFile("playertorso.png")) {
 		exit(1);
@@ -28,6 +26,13 @@ Player::Player(sf::Clock *clock, sf::RenderWindow *window) :
         sf::IntRect(259,0,37,75), sf::IntRect(296,0,37,75), sf::IntRect(333,0,37,75),
         sf::IntRect(370,0,37,75), sf::IntRect(333,0,37,75), sf::IntRect(296,0,37,75),
         sf::IntRect(259,0,37,75), sf::IntRect(222,0,37,75)};
+}
+
+void Player::reset() {
+	ammo = mag_size;
+	extra_ammo = mag_size*2;
+	reloading = false;
+	hp = 100;
 }
 
 void Player::nextFrame() {

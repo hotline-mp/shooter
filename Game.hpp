@@ -47,10 +47,14 @@ class Game
 		void mainMenuHandleEvent(sf::Event &event);
 		void pauseMenuLoop();
 		void pauseMenuHandleEvent(sf::Event &event);
+		void gameOverLoop();
+		void gameOverHandleEvent(sf::Event &event);
 
 		Menu keysMenu;
 		Menu mainMenu;
 		Menu pauseMenu;
+
+		void reset();
 
 		void draw();
 
@@ -93,6 +97,7 @@ class Game
 		bool dbg_enabled = false;
 
 		sf::Time flash_timeout;
+		sf::Time input_timeout;
 
 		sf::Time lastFrame;
 

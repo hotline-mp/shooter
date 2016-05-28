@@ -8,6 +8,7 @@ class Player : public Entity
 {
 	public:
 		Player(sf::Clock *clock, sf::RenderWindow *window);
+		void reset();
 		void draw();
 		void update();
 		void hit(sf::Vector2f direction);

@@ -6,7 +6,8 @@ enum GameState {
 	MainMenu,
 	KeysMenu,
 	PauseMenu,
-	MapEditor
+	MapEditor,
+	GameOver
 };
 
 #endif /* !GAMESTATE_HPP */

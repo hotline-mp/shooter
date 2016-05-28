@@ -100,12 +100,18 @@ void Game::update() {
 	// en direcció a on apuntem
 	player.facing = v / len;
 
+	// get hurt!
 	for (auto &enemy : enemies) {
         enemy.update(player, map);
 		enemy.collisions(map);
 		if (distancePointPoint(enemy.position, player.position) < 30.f) {
 			player.hit(player.position - enemy.position);
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
+			player.hp -= 20;
+			if (player.hp <= 0) {
+				next_game_state = GameOver;
+				input_timeout = clock.getElapsedTime() + sf::milliseconds(1000);
+			}
 		}
 	}
 
@@ -166,8 +172,6 @@ void Game::update() {
 			map_n = 0;
 			loadMap(map_n);
 		}
-
-		player.position = spawn_pos;
 	}
 
 	// el jugador al centre de la pantalla
@@ -240,8 +244,16 @@ void Game::draw() {
 	view0.setCenter(view.getSize()/2.f);
 	window.setView(view0);
 
-	text.setPosition(10, screen_h*4/5);
+	// hp
+	text.setPosition(10, screen_h*16/20);
 	char buf[50];
+	sprintf(buf, "health: %d / 100 ", player.hp);
+	text.setString(buf);
+	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	window.draw(text);
+
+	// ammo
+	text.setPosition(10, screen_h*17/20);
 	sprintf(buf, "ammo: %d / %d %s", player.ammo, player.extra_ammo,
 			player.reloading ? "reloading..." : "");
 	text.setString(buf);
@@ -367,6 +379,41 @@ void Game::playingHandleEvent(sf::Event &event) {
 	}
 }
 
+void Game::gameOverHandleEvent(sf::Event &event) {
+	if (!window.hasFocus()) {
+		return;
+	}
+	if (clock.getElapsedTime() > input_timeout && event.type == sf::Event::KeyPressed) {
+		reset();
+		next_game_state = MainMenu;
+	}
+}
+
+void Game::gameOverLoop() {
+	window.clear(sf::Color::Red);
+	sf::View view = window.getView();
+	sf::View view0 = view;
+	view0.setCenter(view.getSize()/2.f);
+	window.setView(view0);
+	text.setPosition(330, screen_h*45/100);
+	text.setString("GAME OVER");
+	text.setColor(sf::Color(0, 0, 0));
+	window.draw(text);
+	if (clock.getElapsedTime() > input_timeout) {
+		text.setPosition(270, screen_h*55/100);
+		text.setString("Press any key to continue...");
+		text.setColor(sf::Color(0, 0, 0));
+		window.draw(text);
+	}
+	window.setView(view);
+}
+
+void Game::reset() {
+	player.reset();
+	map_n = 0;
+	loadMap(map_n);
+}
+
 int Game::run() {
 	getConfig();
 
@@ -449,6 +496,9 @@ int Game::run() {
                     case PauseMenu:
                         pauseMenuHandleEvent(event);
                         break;
+                    case GameOver:
+                        gameOverHandleEvent(event);
+                        break;
 					default:
 						std::cerr << "error: game state not found" << std::endl;
 						window.close();
@@ -478,6 +528,9 @@ int Game::run() {
             case PauseMenu:
                 pauseMenuLoop();
                 break;
+			case GameOver:
+				gameOverLoop();
+				break;
 			default:
 				std::cerr << "error: game state not found" << std::endl;
 				window.close();

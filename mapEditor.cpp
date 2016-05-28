@@ -401,6 +401,7 @@ int Game::loadMap(std::string name) {
 			warp_pos = read_point(file);
 		}
 	}
+	player.position = spawn_pos;
 	file.close();
 	return 0;
 }
