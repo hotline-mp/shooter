@@ -21,13 +21,13 @@ Player::Player(sf::Clock *clock, sf::RenderWindow *window) :
 	piernas.setTexture(legs);
     piernas.setOrigin(18,44);
 	frame = 0;
-	frames = {sf::IntRect(0,0,37,75), sf::IntRect(185,0,37,75), sf::IntRect(148,0,37,75),
-        sf::IntRect(111,0,37,75), sf::IntRect(74,0,37,75), sf::IntRect(37,0,37,75),
-        sf::IntRect(74,0,37,75), sf::IntRect(111,0,37,75), sf::IntRect(148,0,37,75),
-        sf::IntRect(185,0,37,75), sf::IntRect(0,0,37,75), sf::IntRect(222,0,37,75),
-        sf::IntRect(259,0,37,75), sf::IntRect(296,0,37,75), sf::IntRect(333,0,37,75),
-        sf::IntRect(370,0,37,75), sf::IntRect(333,0,37,75), sf::IntRect(296,0,37,75),
-        sf::IntRect(259,0,37,75), sf::IntRect(222,0,37,75)};
+	frames = {sf::IntRect(0,0,37,75), sf::IntRect(212,0,37,75), sf::IntRect(170,0,37,75),
+        sf::IntRect(128,0,37,75), sf::IntRect(86,0,37,75), sf::IntRect(44,0,37,75),
+        sf::IntRect(86,0,37,75), sf::IntRect(128,0,37,75), sf::IntRect(170,0,37,75),
+        sf::IntRect(212,0,37,75), sf::IntRect(0,0,37,75), sf::IntRect(254,0,37,75),
+        sf::IntRect(296,0,37,75), sf::IntRect(338,0,37,75), sf::IntRect(380,0,37,75),
+        sf::IntRect(422,0,37,75), sf::IntRect(380,0,37,75), sf::IntRect(338,0,37,75),
+        sf::IntRect(296,0,37,75), sf::IntRect(254,0,37,75)};
 }
 
 void Player::nextFrame() {
