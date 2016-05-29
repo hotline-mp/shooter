@@ -121,8 +121,18 @@ class Game
 		sf::Sound knife_sound;
 		sf::SoundBuffer game_over_sample;
 		sf::Sound game_over_sound;
+		sf::SoundBuffer menu_choose_sample;
+		sf::Sound menu_choose_sound;
 
 		sf::Music music;
+
+        sf::Texture mainMenu_texture;
+        sf::Sprite mainMenu_picture;
+        sf::Texture optionMenu_texture;
+        sf::Sprite optionMenu_picture;
+        sf::Texture pauseMenu_texture;
+        sf::Sprite pauseMenu_picture;
+        sf::Music mainMenu_music;
 
 		// editor
 		bool show_editor_help = true;

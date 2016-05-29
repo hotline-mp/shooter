@@ -8,10 +8,20 @@ void Game::mainMenuLoop()
 {
 	sf::View view = window.getView();
 	sf::Vector2f size = view.getSize();
+	sf::Vector2f position = (size/2.f);
 	view.setCenter(size/2.f);
 	window.setView(view);
 
-	window.clear(sf::Color(0xCC, 0xFF, 0xEE));
+	if(!mainMenu_texture.loadFromFile("Mainmenu.png")){
+        exit (1);
+	}
+
+    mainMenu_picture.setTexture(mainMenu_texture);
+    mainMenu_picture.setOrigin(400,300);
+    mainMenu_picture.setPosition(position);
+
+    window.clear(sf::Color(0xCC, 0xFF, 0xEE));
+	window.draw(mainMenu_picture);
 	mainMenu.draw(window);
 }
 

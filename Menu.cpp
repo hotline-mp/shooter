@@ -13,8 +13,8 @@ Menu::Menu() {
 }
 
 void Menu::draw(sf::RenderWindow &window) {
-	int x = 50;
-	int y = 20;
+	int x = 60;
+	int y = 80;
 	text.setPosition(x, y);
 	text.setString(title);
 	text.setStyle(sf::Text::Underlined);

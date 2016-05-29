@@ -421,21 +421,21 @@ void Game::reset() {
 int Game::run() {
 	getConfig();
 
-	mainMenu.title = "Main Menu";
+	mainMenu.title = "";
 	mainMenu.items = {
         "Play",
 		"Options",
 		"Exit"
 	};
 
-	pauseMenu.title = "Pause Menu";
+	pauseMenu.title = "";
 	pauseMenu.items = {
         "Resume",
 		"Options",
 		"Exit"
 	};
 
-	keysMenu.title = "Keys Menu";
+	keysMenu.title = "";
 	keysMenu.items = {
 		"up",
 		"down",
@@ -496,6 +496,20 @@ int Game::run() {
 	game_over_sound.setBuffer(game_over_sample);
 	game_over_sound.setVolume(50);
 
+    if (!menu_choose_sample.loadFromFile("menu_choose.wav")) {
+        exit(1);
+    }
+    menu_choose_sound.setBuffer(menu_choose_sample);
+    menu_choose_sound.setVolume(20);
+
+	if(!mainMenu_music.openFromFile("re_your_brains.wav"))
+                {
+                    exit (1);
+                }
+    mainMenu_music.setLoop(true);
+    mainMenu_music.setVolume(10);
+    mainMenu_music.play();
+
 	//if (!music.openFromFile("music.ogg"))
 	//	exit(1);
 	//music.setLoop(true);
@@ -520,15 +534,18 @@ int Game::run() {
 						break;
 					case KeysMenu:
 						keysMenuHandleEvent(event);
+						menu_choose_sound.play();
 						break;
 					case MapEditor:
 						mapEditorHandleEvent(event);
 						break;
                     case MainMenu:
                         mainMenuHandleEvent(event);
+                        menu_choose_sound.play();
                         break;
                     case PauseMenu:
                         pauseMenuHandleEvent(event);
+                        menu_choose_sound.play();
                         break;
                     case GameOver:
                         gameOverHandleEvent(event);
@@ -548,6 +565,7 @@ int Game::run() {
 
 		switch (game_state) {
 			case Playing:
+			    mainMenu_music.stop();
 				playingLoop();
 				break;
 			case KeysMenu:
@@ -564,6 +582,7 @@ int Game::run() {
                 break;
 			case GameOver:
 				gameOverLoop();
+				mainMenu_music.play();
 				break;
 			default:
 				std::cerr << "error: game state not found" << std::endl;

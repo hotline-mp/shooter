@@ -8,10 +8,20 @@ void Game::pauseMenuLoop()
 {
 	sf::View view = window.getView();
 	sf::Vector2f size = view.getSize();
+	sf::Vector2f position = (size/2.f);
 	view.setCenter(size/2.f);
 	window.setView(view);
 
+    if(!pauseMenu_texture.loadFromFile("Pausemenu.png")){
+        exit (1);
+	}
+
+	pauseMenu_picture.setTexture(pauseMenu_texture);
+    pauseMenu_picture.setOrigin(400,300);
+    pauseMenu_picture.setPosition(position);
+
 	window.clear(sf::Color(0xCC, 0xFF, 0xEE));
+    window.draw(pauseMenu_picture);
 	pauseMenu.draw(window);
 }
 

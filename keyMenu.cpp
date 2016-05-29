@@ -5,6 +5,19 @@
 
 
 void Game::keysMenuLoop() {
+
+    sf::View view = window.getView();
+	sf::Vector2f size = view.getSize();
+	sf::Vector2f position = (size/2.f);
+
+	if(!optionMenu_texture.loadFromFile("Optionmenu.png")){
+        exit (1);
+	}
+
+	optionMenu_picture.setTexture(optionMenu_texture);
+    optionMenu_picture.setOrigin(400,300);
+    optionMenu_picture.setPosition(position);
+
 	keysMenu.values = {
 		keyNames[keys["up"]],
 		keyNames[keys["down"]],
@@ -14,6 +27,7 @@ void Game::keysMenuLoop() {
 	};
 
 	window.clear(sf::Color::Cyan);
+    window.draw(optionMenu_picture);
 	keysMenu.draw(window);
 	if (waiting_for_input) {
 		text.setString("Press a key...");
