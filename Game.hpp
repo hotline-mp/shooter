@@ -122,6 +122,8 @@ class Game
 		sf::SoundBuffer game_over_sample;
 		sf::Sound game_over_sound;
 
+		sf::Music music;
+
 		// editor
 		bool show_editor_help = true;
 		int selected_poly = -1;
