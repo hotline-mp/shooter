@@ -6,22 +6,14 @@
 Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window) :
 	Entity(clock, window, 0.00030f, 30.f)
 {
-	//if (!texture.loadFromFile("enemy1.png")) {
-	//if (!texture.loadFromFile("player.png")) {
-	//	exit(1);
-	//}
-	//this->texture = texture;
 	sprite.setTexture(*texture);
     sprite.setOrigin(30,30);
 	frame = 0;
-	//frames = {sf::IntRect(0,0,60,60), sf::IntRect(60,0,71,60),sf::IntRect(0,0,60,60),sf::IntRect(131,0,71,60)};
-	if(enemy_type==1)
-    {
+	enemy_type = rand()%2;
+	if(enemy_type==1) {
         frames = {sf::IntRect(68,0,52,60), sf::IntRect(5,0,55,60),
         sf::IntRect(68,0,52,60), sf::IntRect(124,0,56,60),};
-    }
-    if(enemy_type==0)
-    {
+    } else {
         frames = {sf::IntRect(67,60,53,60), sf::IntRect(0,60,60,60),
         sf::IntRect(67,60,53,60), sf::IntRect(122,60,58,60),};
     }
@@ -46,12 +38,9 @@ void Enemy::draw() {
 
     sprite.setPosition(position);
     sprite.setTextureRect(frames[frame]);
-    if (seen_player)
-    {
+    if (seen_player) {
         sprite.setRotation(rotation);
-    }
-    else
-    {
+    } else {
         sprite.setRotation(rotation_notseen);
     }
 
