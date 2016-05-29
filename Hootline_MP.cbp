@@ -39,6 +39,7 @@
 			<Add directory="../libconfig/include" />
 		</Compiler>
 		<Linker>
+			<Add library="libsfml-audio" />
 			<Add library="libsfml-graphics" />
 			<Add library="libsfml-window" />
 			<Add library="libsfml-system" />
