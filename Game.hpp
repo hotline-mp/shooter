@@ -63,7 +63,7 @@ class Game
 		void updateDirection();
 		sf::Vector2f bulletSpawnPosition(bool &possible);
 
-		void splashBlood(Enemy &enemy, sf::Vector2f vel);
+		void splashBlood(Enemy &enemy, sf::Vector2f vel, int amount=20);
 
 		int getConfig();
 		int saveConfig();
@@ -123,6 +123,9 @@ class Game
 		sf::Sound game_over_sound;
 
 		sf::Music music;
+
+		int sfx_volume = 20;
+		int music_volume = 30;
 
 		// editor
 		bool show_editor_help = true;
