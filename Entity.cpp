@@ -44,60 +44,64 @@ void Entity::pause() {
 
 void Entity::collisions(std::vector< std::vector<sf::Vector2f> > map) {
 	/* colisions TODO: arreglar */
-	sf::Vector2f player_center = this->position + this->target_movement;
+	sf::Vector2f target_position = this->position + this->target_movement;
+
+	sf::Vector2f target_vector = this->target_movement;
 
 	bool collision = false;
-	sf::Vector2f ctarget = this->target_movement;
-
-	for (std::vector<sf::Vector2f> polygon : map) {
-		// iterem pels punts de dos en dos (segment a segment)
-		for (int i=0; i<(int)polygon.size(); i++) {
-			sf::Vector2f pointA = polygon[i];
-			sf::Vector2f pointB;
-			if (i == (int)polygon.size()-1) {
-				pointB = polygon[0];
-			} else {
-				pointB = polygon[i+1];
-			}
-			// col.lisió amb les cantonades - hack
-			if (distancePointPoint(pointA, player_center) < radius * 1.1) {
-				sf::Vector2f c = player_center - pointA;
-				sf::Vector2f tan = sf::Vector2f(c.y, -c.x);
-				sf::Vector2f tanu = vecUnit(tan);
-				sf::Vector2f tanp = tanu * dotProduct(vecUnit(ctarget), tanu);
-				if (tanp == sf::Vector2f(0, 0) ||
-						dotProduct(-vecUnit(c), vecUnit(ctarget)) > 0.95f) {
-					ctarget = sf::Vector2f(0, 0);
+	int i = 0;
+	do {
+		collision = false;
+		for (std::vector<sf::Vector2f> polygon : map) {
+			// iterem pels punts de dos en dos (segment a segment)
+			for (int i=0; i<(int)polygon.size(); i++) {
+				sf::Vector2f pointA = polygon[i];
+				sf::Vector2f pointB;
+				if (i == (int)polygon.size()-1) {
+					pointB = polygon[0];
 				} else {
-					sf::Vector2f tan_oberta = vecUnit(vecUnit(tanp) + vecUnit(c)*0.25f);
+					pointB = polygon[i+1];
+				}
+				// col.lisió amb les cantonades - hack
+				if (distancePointPoint(pointA, target_position) < radius * 1.1) {
+					sf::Vector2f c = target_position - pointA;
+					sf::Vector2f tan = sf::Vector2f(c.y, -c.x);
+					sf::Vector2f tanu = vecUnit(tan);
+					sf::Vector2f tanp = tanu * dotProduct(vecUnit(target_vector), tanu);
+					if (tanp == sf::Vector2f(0, 0) ||
+							dotProduct(-vecUnit(c), vecUnit(target_vector)) > 0.95f) {
+						target_vector = sf::Vector2f(0, 0);
+					} else {
+						sf::Vector2f tan_oberta = vecUnit(vecUnit(tanp) + vecUnit(c)*0.25f);
 
-					ctarget = tan_oberta * dotProduct(ctarget, tan_oberta);
-					player_center = this->position + ctarget;
+						target_vector = tan_oberta * dotProduct(target_vector, tan_oberta);
+						target_position = this->position + target_vector;
+					}
+				}
+				// col.lisió amb les arestes, té problemes a les cantonades
+				//
+				// agafem el vector que va d'un punt a l'altre
+				// projectarem les coordenades d'un punt i l'altre
+				// sobre el vector, i també les del centre del jugador
+				// per saver si el centre del jugador està entre mig
+				sf::Vector2f axis = pointB - pointA;
+				sf::Vector2f axisUnit = vecUnit(axis);
+				float playerP = dotProduct(target_position, axis);
+				float segmentAp = dotProduct(pointA, axis);
+				float segmentBp = dotProduct(pointB, axis);
+				if ((between(playerP, segmentAp, segmentBp) &&
+						distanceLinePoint(pointA, pointB, target_position) < radius) ||
+						distancePointPoint(pointA, target_position) < radius ||
+						distancePointPoint(pointB, target_position) < radius) {
+					collision = true;
+					target_vector = axisUnit * dotProduct(target_vector, axisUnit);
+					target_position = this->position + target_vector;
 				}
 			}
-			// col.lisió amb les arestes, té problemes a les cantonades
-			//
-			// agafem el vector que va d'un punt a l'altre
-			// projectarem les coordenades d'un punt i l'altre
-			// sobre el vector, i també les del centre del jugador
-			// per saver si el centre del jugador està entre mig
-			sf::Vector2f axis = pointB - pointA;
-			sf::Vector2f axisUnit = vecUnit(axis);
-			float playerP = dotProduct(player_center, axis);
-			float segmentAp = dotProduct(pointA, axis);
-			float segmentBp = dotProduct(pointB, axis);
-			if ((between(playerP, segmentAp, segmentBp) &&
-					distanceLinePoint(pointA, pointB, player_center) < radius) ||
-					distancePointPoint(pointA, player_center) < radius ||
-					distancePointPoint(pointB, player_center) < radius) {
-				collision = true;
-				ctarget = axisUnit * dotProduct(ctarget, axisUnit);
-				player_center = this->position + ctarget;
-			}
 		}
-	}
+	} while (collision && i++ < 200); // hacky!
 
-	this->position = player_center;
+	this->position = target_position;
 
 }
 
