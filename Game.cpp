@@ -111,6 +111,7 @@ void Game::update() {
 			if (player.hp <= 0) {
 				next_game_state = GameOver;
 				input_timeout = clock.getElapsedTime() + sf::milliseconds(1000);
+				game_over_sound.play();
 			}
 		}
 	}
@@ -338,6 +339,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 				player.extra_ammo > 0) {
 			player.reloading = true;
 			player.reload_timer = clock.getElapsedTime() + sf::milliseconds(1000);
+			reload_sound.play();
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Left) {
@@ -354,6 +356,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 				Bullet bullet(&clock, &window, vel);
 				bullet.position = pos;
 				bullets.push_back(bullet);
+				gunshot_sound.play();
 				for (int i=-10; i<10; i++) {
 					sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
 						(0.0012f + (rand() % 10) / 100000.f);
@@ -374,6 +377,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 				Knife knife(&textures[2], &clock, &window, vel);
 				knife.position = pos;
 				knives.push_back(knife);
+				knife_sound.play();
 			}
 		}
 	}
@@ -464,9 +468,33 @@ int Game::run() {
 
 	player.position = spawn_pos;
 
-	if(!crosshair_texture.loadFromFile("crosshair.png")) {
+	if (!crosshair_texture.loadFromFile("crosshair.png")) {
 		exit(1);
 	}
+
+	if (!gunshot_sample.loadFromFile("pistol.wav")) {
+		exit(1);
+	}
+	gunshot_sound.setBuffer(gunshot_sample);
+	gunshot_sound.setVolume(20);
+
+	if (!reload_sample.loadFromFile("reload.wav")) {
+		exit(1);
+	}
+	reload_sound.setBuffer(reload_sample);
+	reload_sound.setVolume(20);
+
+	if (!knife_sample.loadFromFile("knife.wav")) {
+		exit(1);
+	}
+	knife_sound.setBuffer(knife_sample);
+	knife_sound.setVolume(20);
+
+	if (!game_over_sample.loadFromFile("game_over.wav")) {
+		exit(1);
+	}
+	game_over_sound.setBuffer(game_over_sample);
+	game_over_sound.setVolume(20);
 
 	crosshair.setTexture(crosshair_texture);
 	sf::Vector2u crosshair_size = crosshair_texture.getSize();

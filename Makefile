@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Wextra -Werror -Wno-unused -g
 LD = g++
 INCLUDES =
-LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lconfig++
+LIBS = -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lconfig++
 TARGET = shooter
 OBJDIR = obj
 OBJECTS = $(addprefix $(OBJDIR)/, main.o Entity.o Player.o \

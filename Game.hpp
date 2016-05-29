@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/System/Clock.hpp>
 
@@ -82,10 +83,10 @@ class Game
 
 		std::vector< std::vector<sf::Vector2f> > map;
 
+		std::vector<sf::Texture> textures;
 		std::vector<Particle> particles;
 		std::vector<Bullet> bullets;
 		std::vector<Enemy> enemies;
-		std::vector<sf::Texture> textures;
 		std::vector<Grenade> grenades;
 		std::vector<Knife> knives;
 		std::vector<Magazine> magazines;
@@ -110,6 +111,16 @@ class Game
 
 		sf::Texture crosshair_texture;
 		sf::Sprite crosshair;
+
+		// audio
+		sf::SoundBuffer gunshot_sample;
+		sf::Sound gunshot_sound;
+		sf::SoundBuffer reload_sample;
+		sf::Sound reload_sound;
+		sf::SoundBuffer knife_sample;
+		sf::Sound knife_sound;
+		sf::SoundBuffer game_over_sample;
+		sf::Sound game_over_sound;
 
 		// editor
 		bool show_editor_help = true;
