@@ -121,11 +121,27 @@ class Game
 		sf::Sound knife_sound;
 		sf::SoundBuffer game_over_sample;
 		sf::Sound game_over_sound;
+		sf::SoundBuffer menu_choose_sample;
+		sf::Sound menu_choose_sound;
 
 		sf::Music music;
+        sf::Music mainMenu_music;
+        sf::Music gameOver_music;
 
-		int sfx_volume = 20;
-		int music_volume = 30;
+        sf::Texture mainMenu_texture;
+        sf::Sprite mainMenu_picture;
+        sf::Texture optionMenu_texture;
+        sf::Sprite optionMenu_picture;
+        sf::Texture pauseMenu_texture;
+        sf::Sprite pauseMenu_picture;
+        sf::Texture Gameover_texture;
+        sf::Sprite Gameover_picture;
+
+
+
+        int sfx_volume = 20;
+        int music_volume = 30;
+
 
 		// editor
 		bool show_editor_help = true;

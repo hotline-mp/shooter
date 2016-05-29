@@ -106,14 +106,18 @@ void Game::update() {
         enemy.update(player, map);
 		enemy.collisions(map);
 		if (distancePointPoint(enemy.position, player.position) < 30.f) {
+
 			enemy.attacking_timeout = clock.getElapsedTime() + sf::milliseconds(250);
+
 			player.hit(player.position - enemy.position);
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
 			player.hp -= 20;
 			if (player.hp <= 0) {
+                music.stop();
 				next_game_state = GameOver;
 				input_timeout = clock.getElapsedTime() + sf::milliseconds(1000);
 				game_over_sound.play();
+				gameOver_music.play();
 			}
 		}
 	}
@@ -124,6 +128,7 @@ void Game::update() {
 	for (auto &bullet : bullets) {
         bullet.update(map);
 		for (auto &enemy : enemies) {
+
 			if (std::find(
 						bullet.enemies_hit.begin(),
 						bullet.enemies_hit.end(),
@@ -408,21 +413,22 @@ void Game::gameOverHandleEvent(sf::Event &event) {
 	if (clock.getElapsedTime() > input_timeout && event.type == sf::Event::KeyPressed) {
 		reset();
 		next_game_state = MainMenu;
+		gameOver_music.stop();
 	}
 }
 
 void Game::gameOverLoop() {
 	window.clear(sf::Color::Red);
 	sf::View view = window.getView();
+	sf::Vector2f size = view.getSize();
+	sf::Vector2f position = (size/2.f);
 	sf::View view0 = view;
 	view0.setCenter(view.getSize()/2.f);
 	window.setView(view0);
-	text.setPosition(330, screen_h*45/100);
-	text.setString("GAME OVER");
-	text.setColor(sf::Color(0, 0, 0));
-	window.draw(text);
+	Gameover_picture.setPosition(position);
+	window.draw(Gameover_picture);
 	if (clock.getElapsedTime() > input_timeout) {
-		text.setPosition(270, screen_h*55/100);
+		text.setPosition(270, screen_h*70/100);
 		text.setString("Press any key to continue...");
 		text.setColor(sf::Color(0, 0, 0));
 		window.draw(text);
@@ -439,21 +445,21 @@ void Game::reset() {
 int Game::run() {
 	getConfig();
 
-	mainMenu.title = "Main Menu";
+	mainMenu.title = "";
 	mainMenu.items = {
         "Play",
 		"Options",
 		"Exit"
 	};
 
-	pauseMenu.title = "Pause Menu";
+	pauseMenu.title = "";
 	pauseMenu.items = {
         "Resume",
 		"Options",
 		"Exit"
 	};
 
-	keysMenu.title = "Keys Menu";
+	keysMenu.title = "";
 	keysMenu.items = {
 		"up",
 		"down",
@@ -486,6 +492,12 @@ int Game::run() {
 
 	player.position = spawn_pos;
 
+	if (!Gameover_texture.loadFromFile("GameOver.png")) {
+        exit(1);
+	}
+	Gameover_picture.setTexture(Gameover_texture);
+	Gameover_picture.setOrigin(400,300);
+
 	if (!crosshair_texture.loadFromFile("crosshair.png")) {
 		exit(1);
 	}
@@ -514,11 +526,30 @@ int Game::run() {
 	game_over_sound.setBuffer(game_over_sample);
 	game_over_sound.setVolume(100);
 
-	if (!music.openFromFile("music.ogg"))
-		exit(1);
+    if (!menu_choose_sample.loadFromFile("menu_choose.wav")) {
+        exit(1);
+    }
+    menu_choose_sound.setBuffer(menu_choose_sample);
+    menu_choose_sound.setVolume(sfx_volume);
+
+	if(!mainMenu_music.openFromFile("re_your_brains.wav")) {
+        exit (1);
+    }
+    mainMenu_music.setLoop(true);
+    mainMenu_music.setVolume(music_volume);
+    mainMenu_music.play();
+
+
+	if (!music.openFromFile("music.wav")) {
+        exit(1);
+    }
 	music.setLoop(true);
 	music.setVolume(music_volume);
-	music.play();
+
+    if (!gameOver_music.openFromFile("death_music.wav")) {
+        exit(1);
+    }
+    gameOver_music.setVolume(music_volume);
 
 	crosshair.setTexture(crosshair_texture);
 	sf::Vector2u crosshair_size = crosshair_texture.getSize();
@@ -538,15 +569,18 @@ int Game::run() {
 						break;
 					case KeysMenu:
 						keysMenuHandleEvent(event);
+						menu_choose_sound.play();
 						break;
 					case MapEditor:
 						mapEditorHandleEvent(event);
 						break;
                     case MainMenu:
                         mainMenuHandleEvent(event);
+                        menu_choose_sound.play();
                         break;
                     case PauseMenu:
                         pauseMenuHandleEvent(event);
+                        menu_choose_sound.play();
                         break;
                     case GameOver:
                         gameOverHandleEvent(event);
@@ -566,6 +600,7 @@ int Game::run() {
 
 		switch (game_state) {
 			case Playing:
+			    mainMenu_music.stop();
 				playingLoop();
 				break;
 			case KeysMenu:
@@ -582,6 +617,7 @@ int Game::run() {
                 break;
 			case GameOver:
 				gameOverLoop();
+				mainMenu_music.play();
 				break;
 			default:
 				std::cerr << "error: game state not found" << std::endl;

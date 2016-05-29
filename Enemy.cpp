@@ -81,6 +81,7 @@ void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) 
 	lastUpdated = clock->getElapsedTime();
 
 	if (time_now < stagger_timeout) {
+
 		target_movement = sf::Vector2f(0, 0);
 	}
 
@@ -91,8 +92,9 @@ void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) 
         lastAnimFrame = time_now;
 	}
 
-	if (time_now < attacking_timeout) {
-		target_movement = sf::Vector2f(0, 0);
-	}
+    if (time_now < attacking_timeout) {
+        target_movement = sf::Vector2f(0, 0);
+    }
+
 }
 
