@@ -55,7 +55,13 @@
 		<Unit filename="Game.cpp" />
 		<Unit filename="Game.hpp" />
 		<Unit filename="GameState.hpp" />
+		<Unit filename="Grenade.cpp" />
+		<Unit filename="Grenade.hpp" />
 		<Unit filename="KeyNames.hpp" />
+		<Unit filename="Knife.cpp" />
+		<Unit filename="Knife.hpp" />
+		<Unit filename="Magazine.cpp" />
+		<Unit filename="Magazine.hpp" />
 		<Unit filename="Menu.cpp" />
 		<Unit filename="Menu.hpp" />
 		<Unit filename="Particle.cpp" />
