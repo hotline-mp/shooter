@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Enemy.hpp"
 #include "Player.hpp"
 #include "vector.hpp"
