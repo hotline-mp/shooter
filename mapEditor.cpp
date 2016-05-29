@@ -377,6 +377,8 @@ int Game::loadMap(std::string name) {
 	enemies.clear();
 	bullets.clear();
 	knives.clear();
+	magazines.clear();
+	particles.clear();
 	while (true) {
 		char c;
 		file.read(&c, 1);

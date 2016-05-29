@@ -63,7 +63,7 @@ class Game
 		void updateDirection();
 		sf::Vector2f bulletSpawnPosition(bool &possible);
 
-		void splashBlood(Enemy &enemy, sf::Vector2f vel, int amount=20);
+		void splashBlood(Enemy &enemy, sf::Vector2f vel, int amount=40);
 
 		int getConfig();
 		int saveConfig();

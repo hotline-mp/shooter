@@ -13,6 +13,8 @@ class Particle : public Entity {
 		Particle(sf::Clock *clock, sf::RenderWindow *window, float radius,
 				sf::Vector2f vel, float accel, sf::Color color=sf::Color::Black);
 		void update(std::vector< std::vector<sf::Vector2f> > map);
+		bool disappear = true;
+		bool collide = true;
 	protected:
 		sf::CircleShape shape;
 		float accel;

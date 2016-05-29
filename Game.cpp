@@ -83,6 +83,7 @@ void Game::splashBlood(Enemy &enemy, sf::Vector2f vel, int amount) {
 		sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
 			(0.0004f + (rand() % 10) / 50000.f);
 		Particle part(&clock, &window, rand() % 2 + 1, pvel, -0.0000000005, sf::Color::Red);
+		part.disappear = false;
 		part.position = enemy.position;
 		particles.push_back(part);
 	}
@@ -154,18 +155,22 @@ void Game::update() {
 
 	for (auto &knife : knives) {
         knife.update(map);
-		if (distancePointPoint(knife.position, player.position) < player.radius + 3) {
-			knife.alive = false;
-		}
-		for (auto &enemy : enemies) {
-			if (knife.alive && knife.vvel.x != 0 && knife.vvel.y != 0 &&
-					distancePointPoint(knife.position, enemy.position) < enemy.radius) {
-				enemy.alive = false;
-				splashBlood(enemy, knife.vvel);
+		if (knife.alive) {
+			if (knife.vvel.x != 0 && knife.vvel.y != 0) {
+				for (auto &enemy : enemies) {
+					if (distancePointPoint(knife.position, enemy.position) < enemy.radius) {
+						enemy.alive = false;
+						splashBlood(enemy, knife.vvel);
 
-				if (rand() % 6 == 0) {
-					Magazine mag(&textures[3], &clock, &window, enemy.position);
-					magazines.push_back(mag);
+						if (rand() % 6 == 0) {
+							Magazine mag(&textures[3], &clock, &window, enemy.position);
+							magazines.push_back(mag);
+						}
+					}
+				}
+			} else {
+				if (distancePointPoint(knife.position, player.position) < player.radius + knife.radius) {
+					knife.alive = false;
 				}
 			}
 		}
@@ -215,12 +220,12 @@ void Game::draw() {
 	for (Magazine &mag : magazines) {
         mag.draw();
 	}
+	for (Particle &part : particles) {
+        part.draw();
+	}
 	player.draw();
 	for (Bullet &bullet : bullets) {
         bullet.draw();
-	}
-	for (Particle &part : particles) {
-        part.draw();
 	}
 	for (Enemy &enemy : enemies) {
         enemy.draw();
