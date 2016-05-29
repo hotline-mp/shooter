@@ -39,7 +39,9 @@ void Game::pauseMenuHandleEvent(sf::Event &event)
 				std::cout << "keysmenu" << std::endl;
 			}
 			if (pauseMenu.selected == 2) {
-				window.close();
+                reset();
+				next_game_state = MainMenu;
+				mainMenu_music.play();
 			}
 		}
 		if (event.key.code == sf::Keyboard::Down) {
