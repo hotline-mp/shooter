@@ -134,6 +134,7 @@ class Game
         sf::Texture pauseMenu_texture;
         sf::Sprite pauseMenu_picture;
         sf::Music mainMenu_music;
+        sf::Music gameOver_music;
 
         int sfx_volume = 20;
         int music_volume = 30;

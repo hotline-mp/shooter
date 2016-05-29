@@ -116,6 +116,7 @@ void Game::update() {
 				next_game_state = GameOver;
 				input_timeout = clock.getElapsedTime() + sf::milliseconds(1000);
 				game_over_sound.play();
+				gameOver_music.play();
 			}
 		}
 	}
@@ -407,6 +408,7 @@ void Game::gameOverHandleEvent(sf::Event &event) {
 	if (clock.getElapsedTime() > input_timeout && event.type == sf::Event::KeyPressed) {
 		reset();
 		next_game_state = MainMenu;
+		gameOver_music.stop();
 	}
 }
 
@@ -519,20 +521,24 @@ int Game::run() {
     menu_choose_sound.setBuffer(menu_choose_sample);
     menu_choose_sound.setVolume(sfx_volume);
 
-	if(!mainMenu_music.openFromFile("re_your_brains.wav"))
-                {
-                    exit (1);
-                }
+	if(!mainMenu_music.openFromFile("re_your_brains.wav")) {
+        exit (1);
+    }
     mainMenu_music.setLoop(true);
     mainMenu_music.setVolume(music_volume);
     mainMenu_music.play();
 
 
-	if (!music.openFromFile("music.wav"))
-		exit(1);
+	if (!music.openFromFile("music.wav")) {
+        exit(1);
+    }
 	music.setLoop(true);
 	music.setVolume(music_volume);
 
+    if (!gameOver_music.openFromFile("death_music.wav")) {
+        exit(1);
+    }
+    gameOver_music.setVolume(music_volume);
 
 	crosshair.setTexture(crosshair_texture);
 	sf::Vector2u crosshair_size = crosshair_texture.getSize();
