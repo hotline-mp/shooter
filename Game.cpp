@@ -78,8 +78,8 @@ void Game::updateDirection() {
 	player.setMoving(x, y);
 }
 
-void Game::splashBlood(Enemy &enemy, sf::Vector2f vel) {
-	for (int i=-20; i<20; i++) {
+void Game::splashBlood(Enemy &enemy, sf::Vector2f vel, int amount) {
+	for (int i=-amount/2; i<amount/2; i++) {
 		sf::Vector2f pvel = vecUnit(vecUnit(vel) + vecUnit(sf::Vector2f(vel.y, -vel.x))*float(i/50.0)) *
 			(0.0004f + (rand() % 10) / 50000.f);
 		Particle part(&clock, &window, rand() % 2 + 1, pvel, -0.0000000005, sf::Color::Red);
@@ -105,6 +105,7 @@ void Game::update() {
         enemy.update(player, map);
 		enemy.collisions(map);
 		if (distancePointPoint(enemy.position, player.position) < 30.f) {
+            enemy.attacking_timeout = clock.getElapsedTime() + sf::milliseconds(250);
 			player.hit(player.position - enemy.position);
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
 			player.hp -= 20;
@@ -122,14 +123,26 @@ void Game::update() {
 	for (auto &bullet : bullets) {
         bullet.update(map);
 		for (auto &enemy : enemies) {
+            if (std::find(
+                        bullet.enemies_hit.begin(),
+                        bullet.enemies_hit.end(),
+                        &enemy) != bullet.enemies_hit.end()) {
+                continue;
+            }
 			if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
-				enemy.alive = false;
-				//bullet.alive = false;
+                bullet.enemies_hit.push_back(&enemy);
+                if (rand() % 3 == 0) {
+                    splashBlood(enemy, bullet.vvel, 10);
+                    enemy.stagger_timeout = clock.getElapsedTime() + sf::milliseconds(250);
+                } else {
+                    enemy.alive = false;
+                    //bullet.alive = false;
 
-				splashBlood(enemy, bullet.vvel);
-				if (rand() % 10 == 0) {
-					Magazine mag(&textures[3], &clock, &window, enemy.position);
-					magazines.push_back(mag);
+                    splashBlood(enemy, bullet.vvel);
+                    if (rand() % 10 ==0) {
+                        Magazine mag(&textures[3], &clock, &window, enemy.position);
+                        magazines.push_back(mag);
+                    }
 				}
 			}
 		}
@@ -476,44 +489,44 @@ int Game::run() {
 		exit(1);
 	}
 	gunshot_sound.setBuffer(gunshot_sample);
-	gunshot_sound.setVolume(20);
+	gunshot_sound.setVolume(sfx_volume);
 
 	if (!reload_sample.loadFromFile("reload.wav")) {
 		exit(1);
 	}
 	reload_sound.setBuffer(reload_sample);
-	reload_sound.setVolume(20);
+	reload_sound.setVolume(sfx_volume);
 
 	if (!knife_sample.loadFromFile("knife.wav")) {
 		exit(1);
 	}
 	knife_sound.setBuffer(knife_sample);
-	knife_sound.setVolume(20);
+	knife_sound.setVolume(sfx_volume);
 
 	if (!game_over_sample.loadFromFile("game_over.wav")) {
 		exit(1);
 	}
 	game_over_sound.setBuffer(game_over_sample);
-	game_over_sound.setVolume(50);
+	game_over_sound.setVolume(100);
 
     if (!menu_choose_sample.loadFromFile("menu_choose.wav")) {
         exit(1);
     }
     menu_choose_sound.setBuffer(menu_choose_sample);
-    menu_choose_sound.setVolume(20);
+    menu_choose_sound.setVolume(sfx_volume);
 
 	if(!mainMenu_music.openFromFile("re_your_brains.wav"))
                 {
                     exit (1);
                 }
     mainMenu_music.setLoop(true);
-    mainMenu_music.setVolume(10);
+    mainMenu_music.setVolume(music_volume);
     mainMenu_music.play();
 
 	//if (!music.openFromFile("music.ogg"))
 	//	exit(1);
 	//music.setLoop(true);
-	//music.setVolume(30);
+	//music.setVolume(music_volume);
 	//music.play();
 
 	crosshair.setTexture(crosshair_texture);
