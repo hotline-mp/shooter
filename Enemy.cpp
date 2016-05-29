@@ -3,7 +3,7 @@
 #include "vector.hpp"
 
 Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window) :
-	Entity(clock, window, 0.00015f, 30.f)
+	Entity(clock, window, 0.00030f, 30.f)
 {
 	//if (!texture.loadFromFile("enemy1.png")) {
 	//if (!texture.loadFromFile("player.png")) {
