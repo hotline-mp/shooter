@@ -496,11 +496,11 @@ int Game::run() {
 	game_over_sound.setBuffer(game_over_sample);
 	game_over_sound.setVolume(50);
 
-	if (!music.openFromFile("music.ogg"))
-		exit(1);
-	music.setLoop(true);
-	music.setVolume(30);
-	music.play();
+	//if (!music.openFromFile("music.ogg"))
+	//	exit(1);
+	//music.setLoop(true);
+	//music.setVolume(30);
+	//music.play();
 
 	crosshair.setTexture(crosshair_texture);
 	sf::Vector2u crosshair_size = crosshair_texture.getSize();
