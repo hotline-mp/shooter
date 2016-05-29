@@ -105,7 +105,9 @@ void Game::update() {
         enemy.update(player, map);
 		enemy.collisions(map);
 		if (distancePointPoint(enemy.position, player.position) < 30.f) {
-            enemy.attacking_timeout = clock.getElapsedTime() + sf::milliseconds(250);
+
+			enemy.attacking_timeout = clock.getElapsedTime() + sf::milliseconds(250);
+
 			player.hit(player.position - enemy.position);
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
 			player.hp -= 20;
@@ -123,26 +125,27 @@ void Game::update() {
 	for (auto &bullet : bullets) {
         bullet.update(map);
 		for (auto &enemy : enemies) {
-            if (std::find(
-                        bullet.enemies_hit.begin(),
-                        bullet.enemies_hit.end(),
-                        &enemy) != bullet.enemies_hit.end()) {
-                continue;
-            }
-			if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
-                bullet.enemies_hit.push_back(&enemy);
-                if (rand() % 3 == 0) {
-                    splashBlood(enemy, bullet.vvel, 10);
-                    enemy.stagger_timeout = clock.getElapsedTime() + sf::milliseconds(250);
-                } else {
-                    enemy.alive = false;
-                    //bullet.alive = false;
 
-                    splashBlood(enemy, bullet.vvel);
-                    if (rand() % 10 ==0) {
-                        Magazine mag(&textures[3], &clock, &window, enemy.position);
-                        magazines.push_back(mag);
-                    }
+			if (std::find(
+						bullet.enemies_hit.begin(),
+						bullet.enemies_hit.end(),
+						&enemy) != bullet.enemies_hit.end()) {
+				continue;
+			}
+			if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
+				bullet.enemies_hit.push_back(&enemy);
+				if (rand() % 3 == 0) {
+					splashBlood(enemy, bullet.vvel, 10);
+					enemy.stagger_timeout = clock.getElapsedTime() + sf::milliseconds(250);
+				} else {
+					enemy.alive = false;
+					//bullet.alive = false;
+
+					splashBlood(enemy, bullet.vvel);
+					if (rand() % 10 == 0) {
+						Magazine mag(&textures[3], &clock, &window, enemy.position);
+						magazines.push_back(mag);
+					}
 				}
 			}
 		}
@@ -523,11 +526,13 @@ int Game::run() {
     mainMenu_music.setVolume(music_volume);
     mainMenu_music.play();
 
-	//if (!music.openFromFile("music.ogg"))
-	//	exit(1);
-	//music.setLoop(true);
-	//music.setVolume(music_volume);
-	//music.play();
+
+	if (!music.openFromFile("music.ogg"))
+		exit(1);
+	music.setLoop(true);
+	music.setVolume(music_volume);
+	music.play();
+
 
 	crosshair.setTexture(crosshair_texture);
 	sf::Vector2u crosshair_size = crosshair_texture.getSize();

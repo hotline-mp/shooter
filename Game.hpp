@@ -126,6 +126,7 @@ class Game
 
 		sf::Music music;
 
+
         sf::Texture mainMenu_texture;
         sf::Sprite mainMenu_picture;
         sf::Texture optionMenu_texture;
@@ -136,6 +137,7 @@ class Game
 
         int sfx_volume = 20;
         int music_volume = 30;
+
 
 		// editor
 		bool show_editor_help = true;
