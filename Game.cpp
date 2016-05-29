@@ -527,7 +527,7 @@ int Game::run() {
     menu_choose_sound.setBuffer(menu_choose_sample);
     menu_choose_sound.setVolume(sfx_volume);
 
-	if(!mainMenu_music.openFromFile("re_your_brains.wav")) {
+	if(!mainMenu_music.openFromFile("re_your_brains.ogg")) {
         exit (1);
     }
     mainMenu_music.setLoop(true);
@@ -535,13 +535,13 @@ int Game::run() {
     mainMenu_music.play();
 
 
-	if (!music.openFromFile("music.wav")) {
+	if (!music.openFromFile("music.ogg")) {
         exit(1);
     }
 	music.setLoop(true);
 	music.setVolume(music_volume);
 
-    if (!gameOver_music.openFromFile("death_music.wav")) {
+    if (!gameOver_music.openFromFile("death_music.ogg")) {
         exit(1);
     }
     gameOver_music.setVolume(music_volume);
