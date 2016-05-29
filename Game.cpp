@@ -112,6 +112,7 @@ void Game::update() {
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
 			player.hp -= 20;
 			if (player.hp <= 0) {
+                music.stop();
 				next_game_state = GameOver;
 				input_timeout = clock.getElapsedTime() + sf::milliseconds(1000);
 				game_over_sound.play();
@@ -527,11 +528,10 @@ int Game::run() {
     mainMenu_music.play();
 
 
-	if (!music.openFromFile("music.ogg"))
+	if (!music.openFromFile("music.wav"))
 		exit(1);
 	music.setLoop(true);
 	music.setVolume(music_volume);
-	music.play();
 
 
 	crosshair.setTexture(crosshair_texture);

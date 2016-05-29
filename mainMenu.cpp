@@ -31,6 +31,7 @@ void Game::mainMenuHandleEvent(sf::Event &event)
 		if (event.key.code == sf::Keyboard::Return) {
 			if (mainMenu.selected == 0) {
 				next_game_state = Playing;
+            	music.play();
 				std::cout << "exitmenu" << std::endl;
 			}
 			if (mainMenu.selected == 1) {

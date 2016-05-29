@@ -40,6 +40,7 @@ void Game::pauseMenuHandleEvent(sf::Event &event)
 			}
 			if (pauseMenu.selected == 2) {
                 reset();
+                music.stop();
 				next_game_state = MainMenu;
 				mainMenu_music.play();
 			}
