@@ -125,7 +125,8 @@ class Game
 		sf::Sound menu_choose_sound;
 
 		sf::Music music;
-
+        sf::Music mainMenu_music;
+        sf::Music gameOver_music;
 
         sf::Texture mainMenu_texture;
         sf::Sprite mainMenu_picture;
@@ -133,8 +134,10 @@ class Game
         sf::Sprite optionMenu_picture;
         sf::Texture pauseMenu_texture;
         sf::Sprite pauseMenu_picture;
-        sf::Music mainMenu_music;
-        sf::Music gameOver_music;
+        sf::Texture Gameover_texture;
+        sf::Sprite Gameover_picture;
+
+
 
         int sfx_volume = 20;
         int music_volume = 30;

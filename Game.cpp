@@ -415,15 +415,15 @@ void Game::gameOverHandleEvent(sf::Event &event) {
 void Game::gameOverLoop() {
 	window.clear(sf::Color::Red);
 	sf::View view = window.getView();
+	sf::Vector2f size = view.getSize();
+	sf::Vector2f position = (size/2.f);
 	sf::View view0 = view;
 	view0.setCenter(view.getSize()/2.f);
 	window.setView(view0);
-	text.setPosition(330, screen_h*45/100);
-	text.setString("GAME OVER");
-	text.setColor(sf::Color(0, 0, 0));
-	window.draw(text);
+	Gameover_picture.setPosition(position);
+	window.draw(Gameover_picture);
 	if (clock.getElapsedTime() > input_timeout) {
-		text.setPosition(270, screen_h*55/100);
+		text.setPosition(270, screen_h*70/100);
 		text.setString("Press any key to continue...");
 		text.setColor(sf::Color(0, 0, 0));
 		window.draw(text);
@@ -486,6 +486,12 @@ int Game::run() {
 	loadMap(map_n);
 
 	player.position = spawn_pos;
+
+	if (!Gameover_texture.loadFromFile("GameOver.png")) {
+        exit(1);
+	}
+	Gameover_picture.setTexture(Gameover_texture);
+	Gameover_picture.setOrigin(400,300);
 
 	if (!crosshair_texture.loadFromFile("crosshair.png")) {
 		exit(1);
