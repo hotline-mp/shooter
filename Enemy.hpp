@@ -21,6 +21,8 @@ class Enemy : public Entity
 		std::vector<sf::IntRect> frames;
 		int frame;
 		sf::Time lastAnimFrame;
+		int enemy_type=rand()%2;
+		int rotation_notseen=rand()%360;
 		bool seen_player = false;
 };
 
