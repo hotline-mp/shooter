@@ -143,6 +143,7 @@ void Game::update() {
 					splashBlood(enemy, bullet.vvel, 10);
 					enemy.stagger_timeout = clock.getElapsedTime() + sf::milliseconds(250);
 				} else {
+				    zombie_death_sound.play();
 					enemy.alive = false;
 					//bullet.alive = false;
 
@@ -223,7 +224,7 @@ void Game::draw() {
 			i++;
 		}
 		polygon.setFillColor(sf::Color::Black);
-		window.draw(polygon);
+
 	}
 	for (Magazine &mag : magazines) {
         mag.draw();
@@ -590,6 +591,12 @@ int Game::run() {
     }
     death_scream_sound.setBuffer(death_scream_sample);
     death_scream_sound.setVolume(50);
+
+    if (!zombie_death_sample.loadFromFile("zombie_death.wav")) {
+        exit (1);
+    }
+    zombie_death_sound.setBuffer(zombie_death_sample);
+    zombie_death_sound.setVolume(sfx_volume);
 
 	if(!mainMenu_music.openFromFile("re_your_brains.ogg")) {
         exit (1);
