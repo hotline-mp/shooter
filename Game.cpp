@@ -188,8 +188,9 @@ void Game::update() {
 		map_n += 1;
 		if(loadMap(map_n) != 0) {
 			// fin
-			map_n = 0;
-			loadMap(map_n);
+			music.stop();
+			next_game_state = GameOver;
+			victory_music.play();
 		}
 	}
 
@@ -413,6 +414,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 	}
 }
 
+
 void Game::gameOverHandleEvent(sf::Event &event) {
 	if (!window.hasFocus()) {
 		return;
@@ -421,8 +423,12 @@ void Game::gameOverHandleEvent(sf::Event &event) {
 		reset();
 		next_game_state = MainMenu;
 		gameOver_music.stop();
+		victory_music.stop();
 	}
 }
+
+
+
 
 void Game::gameOverLoop() {
 	window.clear(sf::Color::Red);
@@ -432,8 +438,14 @@ void Game::gameOverLoop() {
 	sf::View view0 = view;
 	view0.setCenter(view.getSize()/2.f);
 	window.setView(view0);
+if(loadMap(map_n) != 0) {
+    Victory_picture.setPosition(position);
+    window.draw(Victory_picture);
+}
+else {
 	Gameover_picture.setPosition(position);
 	window.draw(Gameover_picture);
+}
 	if (clock.getElapsedTime() > input_timeout) {
 		text.setPosition(270, screen_h*70/100);
 		text.setString("Press any key to continue...");
@@ -442,6 +454,8 @@ void Game::gameOverLoop() {
 	}
 	window.setView(view);
 }
+
+
 
 void Game::reset() {
 	player.reset();
@@ -506,6 +520,12 @@ int Game::run() {
 	Gameover_picture.setTexture(Gameover_texture);
 	Gameover_picture.setOrigin(400,300);
 
+	if (!Victory_texture.loadFromFile("Victoryscreen.png")) {
+        exit(1);
+	}
+	Victory_picture.setTexture(Victory_texture);
+	Victory_picture.setOrigin(400,300);
+
 	if (!crosshair_texture.loadFromFile("crosshair.png")) {
 		exit(1);
 	}
@@ -564,6 +584,11 @@ int Game::run() {
         exit(1);
     }
     gameOver_music.setVolume(music_volume);
+
+    if (!victory_music.openFromFile("themonsterswithin.wav")) {
+        exit(1);
+    }
+    victory_music.setVolume(music_volume);
 
 	crosshair.setTexture(crosshair_texture);
 	sf::Vector2u crosshair_size = crosshair_texture.getSize();
