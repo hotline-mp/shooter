@@ -137,6 +137,8 @@ class Game
         sf::Texture Gameover_texture;
         sf::Sprite Gameover_picture;
 
+        sf::Texture Map1_texture;
+        sf::Sprite Map1_picture;
 
 
         int sfx_volume = 20;

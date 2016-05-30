@@ -289,18 +289,30 @@ void Game::draw() {
 void Game::playingLoop() {
 	update();
 
+
 	// letterbox bg
 	window.clear(sf::Color::Black);
 
 	// view bg
+
 	sf::View view = window.getView();
 	sf::Vector2f size = view.getSize();
+	sf::Vector2f position = (size/2.f);
 	sf::RectangleShape rs(size);
 	rs.setOrigin(size/2.f);
 	rs.setPosition(view.getCenter());
 	//rs.setFillColor(sf::Color(0x59, 0x30, 0x1B));
 	rs.setFillColor(sf::Color::White);
+
+
+
 	window.draw(rs);
+	switch(map_n) {
+	    case 0:
+        Map1_picture.setPosition(position);
+        window.draw(Map1_picture);
+        break;
+	}
 
 	if (dbg_enabled) {
 		const float dbg_r = 5.f;
@@ -438,6 +450,7 @@ void Game::reset() {
 }
 
 int Game::run() {
+
 	getConfig();
 
 	mainMenu.title = "";
@@ -496,6 +509,12 @@ int Game::run() {
 	if (!crosshair_texture.loadFromFile("crosshair.png")) {
 		exit(1);
 	}
+
+	if (!Map1_texture.loadFromFile("Map1.png")) {
+        exit(1);
+	}
+	Map1_picture.setTexture(Map1_texture);
+	Map1_picture.setOrigin(2147,1389);
 
 	if (!gunshot_sample.loadFromFile("pistol.wav")) {
 		exit(1);
