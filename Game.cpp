@@ -585,7 +585,7 @@ int Game::run() {
     }
     gameOver_music.setVolume(music_volume);
 
-    if (!victory_music.openFromFile("themonsterswithin.wav")) {
+    if (!victory_music.openFromFile("victory_song.ogg")) {
         exit(1);
     }
     victory_music.setVolume(music_volume);
