@@ -128,6 +128,8 @@ class Game
 		sf::Sound hurt_sound;
 		sf::SoundBuffer death_scream_sample;
 		sf::Sound death_scream_sound;
+        sf::SoundBuffer zombies_sample;
+        sf::Sound zombies_sound;
 
 		sf::Music music;
         sf::Music mainMenu_music;

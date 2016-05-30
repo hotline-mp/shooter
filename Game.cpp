@@ -561,6 +561,12 @@ int Game::run() {
 	knife_sound.setBuffer(knife_sample);
 	knife_sound.setVolume(sfx_volume);
 
+	if (!zombies_sample.loadFromFile("zombies.wav")) {
+        exit(1);
+    }
+    zombies_sound.setBuffer(zombies_sample);
+    zombies_sound.setVolume(sfx_volume);
+
 	if (!game_over_sample.loadFromFile("game_over.wav")) {
 		exit(1);
 	}

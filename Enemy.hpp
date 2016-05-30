@@ -1,6 +1,8 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
+#include <SFML/Audio.hpp>
+
 #include "Entity.hpp"
 #include "Player.hpp"
 
@@ -26,6 +28,10 @@ class Enemy : public Entity
 		int enemy_type;
 		int rotation_notseen=rand()%360;
 		bool seen_player = false;
+		bool seen_first_time = false;
+		sf::Sound zombies_sound;
+
+
 };
 
 #endif /* !ENEMY_H */

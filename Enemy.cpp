@@ -62,10 +62,16 @@ void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) 
 		}
 		if (can_see) {
 			seen_player = true;
+			if (seen_first_time = false){
+                zombies_sound.play();
+                seen_first_time = true;
+			}
+
 		}
 	}
 	if (seen_player) {
 		moving = vecUnit(player.position - position);
+
 	}
 
 	// common
