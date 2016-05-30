@@ -22,6 +22,9 @@ sf::Vector2f get_mouse_coords(sf::RenderWindow &window) {
 }
 
 void Game::mapEditorLoop() {
+    	sf::View view = window.getView();
+	sf::Vector2f size = view.getSize();
+	sf::Vector2f position = (size/2.f);
 	sf::Time time_now = clock.getElapsedTime();
 	if (lastFrame.asMicroseconds() == 0) {
 		lastFrame = time_now;
@@ -55,12 +58,21 @@ void Game::mapEditorLoop() {
 		warp_pos = mouse_coords;
 	}
 
-	sf::View view = window.getView();
+
 	view.setCenter(view.getCenter() + player.moving * float(micros * vel));
 	window.setView(view);
 
 	//draw
 	window.clear(sf::Color::Cyan);
+
+    switch (map_n) {
+    case 0:
+    Map1_picture.setPosition(position);
+    window.draw(Map1_picture);
+    break;
+    }
+
+
 
 	for (int i=0; i<(int)map.size(); i++) {
 		sf::ConvexShape polygon;

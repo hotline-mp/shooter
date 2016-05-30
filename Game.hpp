@@ -51,6 +51,7 @@ class Game
 		void gameOverLoop();
 		void gameOverHandleEvent(sf::Event &event);
 
+
 		Menu keysMenu;
 		Menu mainMenu;
 		Menu pauseMenu;
@@ -127,6 +128,7 @@ class Game
 		sf::Music music;
         sf::Music mainMenu_music;
         sf::Music gameOver_music;
+        sf::Music victory_music;
 
         sf::Texture mainMenu_texture;
         sf::Sprite mainMenu_picture;
@@ -136,7 +138,11 @@ class Game
         sf::Sprite pauseMenu_picture;
         sf::Texture Gameover_texture;
         sf::Sprite Gameover_picture;
+        sf::Texture Victory_texture;
+        sf::Sprite Victory_picture;
 
+        sf::Texture Map1_texture;
+        sf::Sprite Map1_picture;
 
 
         int sfx_volume = 20;
