@@ -13,7 +13,7 @@
 class Enemy : public Entity
 {
 	public:
-		Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window);
+		Enemy(sf::Texture *texture, sf::Sound *sound, sf::Clock *clock, sf::RenderWindow *window);
 		void draw();
 		//void update();
 		void update(Player player, std::vector< std::vector<sf::Vector2f> > map);
@@ -28,8 +28,7 @@ class Enemy : public Entity
 		int enemy_type;
 		int rotation_notseen=rand()%360;
 		bool seen_player = false;
-		bool seen_first_time = false;
-		sf::Sound zombies_sound;
+		sf::Sound* sound;
 
 
 };

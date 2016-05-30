@@ -201,7 +201,7 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			std::cout << "exitmapedit" << std::endl;
 		}
 		if (event.key.code == sf::Keyboard::Num1) {
-			enemies.push_back(Enemy(&textures[0], &clock, &window));
+			enemies.push_back(Enemy(&textures[0], &zombies_sound, &clock, &window));
 			enemies[enemies.size()-1].position = mouse_coords;
 		}
 		if (event.key.code == sf::Keyboard::Delete) {
@@ -407,7 +407,7 @@ int Game::loadMap(std::string name) {
 			map[map.size()-1].push_back(p);
 		} else if (c == 'e') {
 			sf::Vector2f p = read_point(file, "enemy");
-			enemies.push_back(Enemy(&textures[0], &clock, &window));
+			enemies.push_back(Enemy(&textures[0], &zombies_sound, &clock, &window));
 			enemies[enemies.size()-1].position = p;
 		} else if (c == 's') {
 			spawn_pos = read_point(file);

@@ -3,7 +3,7 @@
 #include "Player.hpp"
 #include "vector.hpp"
 
-Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window) :
+Enemy::Enemy(sf::Texture *texture, sf::Sound *sound, sf::Clock *clock, sf::RenderWindow *window) :
 	Entity(clock, window, 0.00030f, 30.f)
 {
 	sprite.setTexture(*texture);
@@ -17,6 +17,7 @@ Enemy::Enemy(sf::Texture *texture, sf::Clock *clock, sf::RenderWindow *window) :
         frames = {sf::IntRect(67,60,53,60), sf::IntRect(0,60,60,60),
         sf::IntRect(67,60,53,60), sf::IntRect(122,60,58,60),};
     }
+	this->sound = sound;
 }
 
 void Enemy::nextFrame() {
@@ -62,10 +63,7 @@ void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) 
 		}
 		if (can_see) {
 			seen_player = true;
-			if (seen_first_time = false){
-                zombies_sound.play();
-                seen_first_time = true;
-			}
+			sound->play();
 
 		}
 	}
