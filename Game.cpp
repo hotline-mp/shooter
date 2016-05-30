@@ -112,7 +112,9 @@ void Game::update() {
 			player.hit(player.position - enemy.position);
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
 			player.hp -= 20;
+			hurt_sound.play();
 			if (player.hp <= 0) {
+                death_scream_sound.play();
                 music.stop();
 				next_game_state = GameOver;
 				input_timeout = clock.getElapsedTime() + sf::milliseconds(1000);
@@ -570,6 +572,18 @@ int Game::run() {
     }
     menu_choose_sound.setBuffer(menu_choose_sample);
     menu_choose_sound.setVolume(sfx_volume);
+
+    if (!hurt_sample.loadFromFile("hurt.wav")) {
+        exit (1);
+    }
+    hurt_sound.setBuffer(hurt_sample);
+    hurt_sound.setVolume(sfx_volume);
+
+    if (!death_scream_sample.loadFromFile("death_scream.wav")) {
+        exit (1);
+    }
+    death_scream_sound.setBuffer(death_scream_sample);
+    death_scream_sound.setVolume(50);
 
 	if(!mainMenu_music.openFromFile("re_your_brains.ogg")) {
         exit (1);

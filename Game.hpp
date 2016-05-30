@@ -124,6 +124,10 @@ class Game
 		sf::Sound game_over_sound;
 		sf::SoundBuffer menu_choose_sample;
 		sf::Sound menu_choose_sound;
+		sf::SoundBuffer hurt_sample;
+		sf::Sound hurt_sound;
+		sf::SoundBuffer death_scream_sample;
+		sf::Sound death_scream_sound;
 
 		sf::Music music;
         sf::Music mainMenu_music;
