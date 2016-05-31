@@ -219,17 +219,19 @@ void Game::draw() {
 	for (Knife &knife : knives) {
         knife.draw();
 	}
+#if 0
+	sf::ConvexShape polygon;
+	polygon.setFillColor(sf::Color::Black);
 	for (auto &points : map) {
-		sf::ConvexShape polygon;
 		polygon.setPointCount(points.size());
 		int i=0;
 		for (auto &point : points) {
 			polygon.setPoint(i, point);
 			i++;
 		}
-		polygon.setFillColor(sf::Color::Black);
-
+		window.draw(polygon);
 	}
+#endif
 	for (Magazine &mag : magazines) {
         mag.draw();
 	}
@@ -295,6 +297,11 @@ void Game::draw() {
 	text.setString(buf);
 	text.setColor(sf::Color(0xA6, 0x0B, 0));
 	window.draw(text);
+	text.setPosition(3, 90);
+	sprintf(buf, "%f %f", player.position.x, player.position.y);
+	text.setString(buf);
+	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	window.draw(text);
 
 	// hp
 	text.setPosition(10, screen_h*16/20);
@@ -331,7 +338,7 @@ void Game::playingLoop() {
 	sf::Vector2f size = view.getSize();
 	sf::Vector2f position = (size/2.f);
 	sf::RectangleShape rs(size);
-	rs.setOrigin(size/2.f);
+	rs.setOrigin(position);
 	rs.setPosition(view.getCenter());
 	//rs.setFillColor(sf::Color(0x59, 0x30, 0x1B));
 	rs.setFillColor(sf::Color::White);
@@ -340,9 +347,14 @@ void Game::playingLoop() {
 
 	window.draw(rs);
 	switch(map_n) {
-	    case 0:
-        Map1_picture.setPosition(position);
-        window.draw(Map1_picture);
+	case 0:
+		sf::Vector2f b(-1750, -1095);
+		for (int i=0; i<14; i++) {
+			map_sprite.setTexture(map_textures[i]);
+			map_sprite.setPosition(b+sf::Vector2f(1024*(i%5), 1024*(i/5)));
+			window.draw(map_sprite);
+		}
+		window.draw(map_sprite);
         break;
 	}
 
@@ -587,11 +599,21 @@ int Game::run() {
 		exit(1);
 	}
 
-	if (!Map1_texture.loadFromFile("Map1.png")) {
-        exit(1);
+	//if (!Map1_texture.loadFromFile("Map1.png")) {
+    //    exit(1);
+	//}
+	//Map1_picture.setTexture(Map1_texture);
+	//Map1_picture.setOrigin(2147,1389);
+	char buf[50];
+	for (int i=0; i<14; i++) {
+		sprintf(buf, "map1_%d.png", i);
+		sf::Texture tex;
+		if (!tex.loadFromFile(buf)) {
+			std::cout << buf << std::endl;
+			exit(1);
+		}
+		map_textures.push_back(tex);
 	}
-	Map1_picture.setTexture(Map1_texture);
-	Map1_picture.setOrigin(2147,1389);
 
 	if (!gunshot_sample.loadFromFile("pistol.wav")) {
 		exit(1);

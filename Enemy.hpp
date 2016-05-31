@@ -16,7 +16,7 @@ class Enemy : public Entity
 		Enemy(sf::Texture *texture, sf::Sound *sound, sf::Clock *clock, sf::RenderWindow *window);
 		void draw();
 		//void update();
-		void update(Player player, std::vector< std::vector<sf::Vector2f> > map);
+		void update(Player &player, const std::vector< std::vector<sf::Vector2f> > &map);
 		sf::Time stagger_timeout;
 		sf::Time attacking_timeout;
 	private:

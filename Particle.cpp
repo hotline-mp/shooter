@@ -47,6 +47,7 @@ void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
 		if (disappear) {
 			alive = false;
 		}
+		return;
 	} else {
 		vvel = r;
 	}
@@ -60,9 +61,9 @@ void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
 	}
 	if (collide) {
 		for (auto &polygon : map) {
-			//if (point_in_polygon(position, polygon)) {
-			if (circleCrossingPolygonAxis(position, std::max(radius, 3.f), polygon) ||
-					isPointInPoly(position, polygon)) {
+			if (isPointInPoly(position, polygon)) {
+			//if (circleCrossingPolygonAxis(position, std::max(radius, 3.f), polygon) ||
+			//		isPointInPoly(position, polygon)) {
 				//vvel = sf::Vector2f(0, 0);
 				accel *= 3;
 				if (disappear) {

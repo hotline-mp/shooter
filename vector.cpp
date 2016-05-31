@@ -17,7 +17,7 @@ float crossProduct(sf::Vector2f u, sf::Vector2f v) {
 	return u.x * v.y - u.y * v.x;
 }
 
-void projPoly(std::vector<sf::Vector2f> polygon,
+void projPoly(const std::vector<sf::Vector2f> &polygon,
 		sf::Vector2f axis, float &min, float &max) {
 	min = max = dotProduct(polygon[0], axis);
 	for (int i=1; i<(int)polygon.size(); i++) {
@@ -54,7 +54,7 @@ float distanceLinePoint(sf::Vector2f A, sf::Vector2f B, sf::Vector2f P) {
 		sqrt(powf(B.y-A.y, 2) + powf(B.x-A.x, 2));
 }
 
-bool isPointInPoly(sf::Vector2f P, std::vector<sf::Vector2f> poly) {
+bool isPointInPoly(sf::Vector2f P, const std::vector<sf::Vector2f> &poly) {
 	if (poly.size() < 2) {
 		return false;
 	}
@@ -83,7 +83,7 @@ bool lineCrossesLine(sf::Vector2f A, sf::Vector2f B,
 }
 
 bool lineCrossesPoly(sf::Vector2f A, sf::Vector2f B,
-		std::vector<sf::Vector2f> poly) {
+		const std::vector<sf::Vector2f> &poly) {
 	for (int i=0; i<(int)poly.size(); i++) {
 		sf::Vector2f p1 = poly[i];
 		sf::Vector2f p2;
@@ -100,7 +100,7 @@ bool lineCrossesPoly(sf::Vector2f A, sf::Vector2f B,
 }
 
 bool circleCrossingPolygonAxis(sf::Vector2f point, float radius,
-		std::vector<sf::Vector2f> polygon) {
+		const std::vector<sf::Vector2f> &polygon) {
 	// iterem pels punts de dos en dos (segment a segment)
 	for (int i=0; i<(int)polygon.size(); i++) {
 		sf::Vector2f pointA = polygon[i];

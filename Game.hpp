@@ -158,6 +158,9 @@ class Game
         sf::Texture Map1_texture;
         sf::Sprite Map1_picture;
 
+		std::vector<sf::Texture> map_textures;
+        sf::Sprite map_sprite;
+
 
         int sfx_volume = 20;
         int music_volume = 30;

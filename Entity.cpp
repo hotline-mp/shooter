@@ -56,7 +56,7 @@ void Entity::collisions(const std::vector< std::vector<sf::Vector2f> > &map) {
 	int i = 0;
 	do {
 		collision = false;
-		for (std::vector<sf::Vector2f> polygon : map) {
+		for (const std::vector<sf::Vector2f> &polygon : map) {
 			// iterem pels punts de dos en dos (segment a segment)
 			for (int i=0; i<(int)polygon.size(); i++) {
 				sf::Vector2f pointA = polygon[i];

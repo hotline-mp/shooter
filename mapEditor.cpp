@@ -66,11 +66,16 @@ void Game::mapEditorLoop() {
 	window.clear(sf::Color::Cyan);
 
     switch (map_n) {
-    case 0:
-    Map1_picture.setPosition(position);
-    window.draw(Map1_picture);
-    break;
-    }
+	case 0:
+		sf::Vector2f b(-1750, -1095);
+		for (int i=0; i<14; i++) {
+			map_sprite.setTexture(map_textures[i]);
+			map_sprite.setPosition(b+sf::Vector2f(1024*(i%5), 1024*(i/5)));
+			window.draw(map_sprite);
+		}
+		window.draw(map_sprite);
+        break;
+	}
 
 
 

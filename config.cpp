@@ -34,7 +34,7 @@ int Game::getConfig() {
 	}
 
 	std::vector<std::string> to_read {"up", "down", "left", "right", "reload"};
-	for (std::string key : to_read) {
+	for (std::string &key : to_read) {
 		try {
 			keys[key] = cfg.lookup(key);
 		} catch(const SettingNotFoundException &nfex) {

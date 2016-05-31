@@ -48,7 +48,7 @@ void Enemy::draw() {
 	window->draw(sprite);
 }
 
-void Enemy::update(Player player, std::vector< std::vector<sf::Vector2f> > map) {
+void Enemy::update(Player &player, const std::vector< std::vector<sf::Vector2f> > &map) {
 	moving = sf::Vector2f(0, 0);
 	/*
 	 * Quan ja hem vist el jugador, el perseguim fins a la mort
