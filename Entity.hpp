@@ -30,8 +30,7 @@ class Entity
 		void draw();
 		void update();
 		void pause();
-		void collisions(std::vector<sf::Vector2f> polygon);
-		void collisions(std::vector< std::vector<sf::Vector2f> > map);
+		void collisions(const std::vector< std::vector<sf::Vector2f> > &map);
 
 		Entity(sf::Clock *clock, sf::RenderWindow *window) :
 			clock(clock), window(window), vel(0.0003f), radius(30.f),

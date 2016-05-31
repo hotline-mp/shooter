@@ -13,8 +13,8 @@ Game::Game() : player(&clock, &window) {
 	settings.antialiasingLevel = 8;
 
     window.create(sf::VideoMode(screen_w, screen_h), "shooter demo",
-			//sf::Style::Titlebar | sf::Style::Close,
-			sf::Style::Fullscreen,
+			sf::Style::Titlebar | sf::Style::Close,
+			//sf::Style::Fullscreen,
 			settings);
 	sf::Vector2u window_size = window.getSize();
 	sf::View view(sf::FloatRect(0, 0, screen_w, screen_h));
@@ -91,6 +91,7 @@ void Game::splashBlood(Enemy &enemy, sf::Vector2f vel, int amount) {
 
 #define COL_BOX 0
 void Game::update() {
+	sf::Time t = clock.getElapsedTime();
 	updateDirection();
 
 	sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
@@ -156,6 +157,8 @@ void Game::update() {
 			}
 		}
 	}
+	spent_in_a += clock.getElapsedTime() - t;
+	t = clock.getElapsedTime();
 
 	for (auto &part : particles) {
         part.update(map);
@@ -206,6 +209,7 @@ void Game::update() {
 	sf::View view = window.getView();
 	view.setCenter(player.position);
 	window.setView(view);
+	spent_in_b += clock.getElapsedTime() - t;
 }
 
 void Game::draw() {
@@ -272,9 +276,28 @@ void Game::draw() {
 	view0.setCenter(view.getSize()/2.f);
 	window.setView(view0);
 
+	// fps
+	char buf[50];
+	text.setPosition(3, 3);
+	sprintf(buf, "%d", last_fps_count);
+	text.setString(buf);
+	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	window.draw(text);
+
+	// dbg
+	text.setPosition(3, 30);
+	sprintf(buf, "%d", last_spent_in_a.asMilliseconds());
+	text.setString(buf);
+	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	window.draw(text);
+	text.setPosition(3, 60);
+	sprintf(buf, "%d", last_spent_in_b.asMilliseconds());
+	text.setString(buf);
+	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	window.draw(text);
+
 	// hp
 	text.setPosition(10, screen_h*16/20);
-	char buf[50];
 	sprintf(buf, "health: %d / 100 ", player.hp);
 	text.setString(buf);
 	text.setColor(sf::Color(0xA6, 0x0B, 0));
@@ -435,9 +458,6 @@ void Game::gameOverHandleEvent(sf::Event &event) {
 	}
 }
 
-
-
-
 void Game::gameOverLoop() {
 	window.clear(sf::Color::Red);
 	sf::View view = window.getView();
@@ -446,14 +466,13 @@ void Game::gameOverLoop() {
 	sf::View view0 = view;
 	view0.setCenter(view.getSize()/2.f);
 	window.setView(view0);
-if(loadMap(map_n) != 0) {
-    Victory_picture.setPosition(position);
-    window.draw(Victory_picture);
-}
-else {
-	Gameover_picture.setPosition(position);
-	window.draw(Gameover_picture);
-}
+	if (enemies.size() == 0) {
+		Victory_picture.setPosition(position);
+		window.draw(Victory_picture);
+	} else {
+		Gameover_picture.setPosition(position);
+		window.draw(Gameover_picture);
+	}
 	if (clock.getElapsedTime() > input_timeout) {
 		text.setPosition(270, screen_h*70/100);
 		text.setString("Press any key to continue...");
@@ -463,12 +482,26 @@ else {
 	window.setView(view);
 }
 
-
-
 void Game::reset() {
 	player.reset();
 	map_n = 0;
 	loadMap(map_n);
+}
+
+void Game::setVolumes() {
+	gunshot_sound.setVolume(sfx_volume);
+	reload_sound.setVolume(sfx_volume);
+	knife_sound.setVolume(sfx_volume);
+    zombies_sound.setVolume(sfx_volume);
+	game_over_sound.setVolume(100);
+    menu_choose_sound.setVolume(sfx_volume);
+    hurt_sound.setVolume(sfx_volume);
+    death_scream_sound.setVolume(50);
+    zombie_death_sound.setVolume(sfx_volume);
+    mainMenu_music.setVolume(music_volume);
+	music.setVolume(music_volume);
+    gameOver_music.setVolume(music_volume);
+    victory_music.setVolume(music_volume);
 }
 
 int Game::run() {
@@ -489,6 +522,14 @@ int Game::run() {
 		"Exit"
 	};
 
+	optionsMenu.title = "options";
+	optionsMenu.items = {
+		"Key Mappings",
+		"Music Volume",
+		"SFX Volume",
+		"Exit"
+	};
+
 	keysMenu.title = "";
 	keysMenu.items = {
 		"up",
@@ -497,6 +538,14 @@ int Game::run() {
 		"right",
 		"reload"
 	};
+
+	if(!mainMenu_texture.loadFromFile("Mainmenu.png")){
+        exit (1);
+	}
+
+    if(!pauseMenu_texture.loadFromFile("Pausemenu.png")){
+        exit (1);
+	}
 
 	if (!font.loadFromFile("sans.ttf")) {
 		std::cerr << "Could not load font" << std::endl;
@@ -548,61 +597,52 @@ int Game::run() {
 		exit(1);
 	}
 	gunshot_sound.setBuffer(gunshot_sample);
-	gunshot_sound.setVolume(sfx_volume);
 
 	if (!reload_sample.loadFromFile("reload.wav")) {
 		exit(1);
 	}
 	reload_sound.setBuffer(reload_sample);
-	reload_sound.setVolume(sfx_volume);
 
 	if (!knife_sample.loadFromFile("knife.wav")) {
 		exit(1);
 	}
 	knife_sound.setBuffer(knife_sample);
-	knife_sound.setVolume(sfx_volume);
 
 	if (!zombies_sample.loadFromFile("zombies.wav")) {
         exit(1);
     }
     zombies_sound.setBuffer(zombies_sample);
-    zombies_sound.setVolume(sfx_volume);
 
 	if (!game_over_sample.loadFromFile("game_over.wav")) {
 		exit(1);
 	}
 	game_over_sound.setBuffer(game_over_sample);
-	game_over_sound.setVolume(100);
 
     if (!menu_choose_sample.loadFromFile("menu_choose.wav")) {
         exit(1);
     }
     menu_choose_sound.setBuffer(menu_choose_sample);
-    menu_choose_sound.setVolume(sfx_volume);
 
     if (!hurt_sample.loadFromFile("hurt.wav")) {
         exit (1);
     }
     hurt_sound.setBuffer(hurt_sample);
-    hurt_sound.setVolume(sfx_volume);
 
     if (!death_scream_sample.loadFromFile("death_scream.wav")) {
         exit (1);
     }
     death_scream_sound.setBuffer(death_scream_sample);
-    death_scream_sound.setVolume(50);
 
     if (!zombie_death_sample.loadFromFile("zombie_death.wav")) {
         exit (1);
     }
     zombie_death_sound.setBuffer(zombie_death_sample);
-    zombie_death_sound.setVolume(sfx_volume);
 
 	if(!mainMenu_music.openFromFile("re_your_brains.ogg")) {
         exit (1);
     }
     mainMenu_music.setLoop(true);
-    mainMenu_music.setVolume(music_volume);
+	setVolumes();
     mainMenu_music.play();
 
 
@@ -610,17 +650,14 @@ int Game::run() {
         exit(1);
     }
 	music.setLoop(true);
-	music.setVolume(music_volume);
 
     if (!gameOver_music.openFromFile("death_music.ogg")) {
         exit(1);
     }
-    gameOver_music.setVolume(music_volume);
 
     if (!victory_music.openFromFile("victory_song.ogg")) {
         exit(1);
     }
-    victory_music.setVolume(music_volume);
 
 	crosshair.setTexture(crosshair_texture);
 	sf::Vector2u crosshair_size = crosshair_texture.getSize();
@@ -656,6 +693,9 @@ int Game::run() {
                     case GameOver:
                         gameOverHandleEvent(event);
                         break;
+                    case OptionsMenu:
+                        optionsMenuHandleEvent(event);
+                        break;
 					default:
 						std::cerr << "error: game state not found" << std::endl;
 						window.close();
@@ -690,12 +730,26 @@ int Game::run() {
 				gameOverLoop();
 				mainMenu_music.play();
 				break;
+            case OptionsMenu:
+                optionsMenuLoop();
+                break;
 			default:
 				std::cerr << "error: game state not found" << std::endl;
 				window.close();
 		}
 
         window.display();
+
+		fps_count += 1;
+		if (clock.getElapsedTime() > second_timer) {
+			last_fps_count = fps_count;
+			fps_count = 0;
+			second_timer = clock.getElapsedTime() + sf::milliseconds(1000);
+			last_spent_in_a = spent_in_a;
+			last_spent_in_b = spent_in_b;
+			spent_in_a = sf::Time();
+			spent_in_b = sf::Time();
+		}
     }
 	saveConfig();
 

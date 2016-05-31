@@ -6,6 +6,7 @@ enum GameState {
 	MainMenu,
 	KeysMenu,
 	PauseMenu,
+	OptionsMenu,
 	MapEditor,
 	GameOver
 };

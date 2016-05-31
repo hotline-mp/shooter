@@ -26,8 +26,10 @@ void Particle::draw() {
 	window->draw(shape);
 }
 
-void Particle::update(std::vector< std::vector<sf::Vector2f> > map) {
-	//Entity::update();
+void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
+	if (vvel == sf::Vector2f(0, 0)) {
+		return;
+	}
 
 	sf::Time time_now = clock->getElapsedTime();
 	if (lastUpdated.asMicroseconds() == 0) {

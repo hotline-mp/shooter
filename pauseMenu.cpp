@@ -12,10 +12,6 @@ void Game::pauseMenuLoop()
 	view.setCenter(size/2.f);
 	window.setView(view);
 
-    if(!pauseMenu_texture.loadFromFile("Pausemenu.png")){
-        exit (1);
-	}
-
 	pauseMenu_picture.setTexture(pauseMenu_texture);
     pauseMenu_picture.setOrigin(400,300);
     pauseMenu_picture.setPosition(position);
@@ -35,8 +31,7 @@ void Game::pauseMenuHandleEvent(sf::Event &event)
 			}
 			if (pauseMenu.selected == 1) {
 				previous_game_state.push_back(PauseMenu);
-				next_game_state = KeysMenu;
-				std::cout << "keysmenu" << std::endl;
+				next_game_state = OptionsMenu;
 			}
 			if (pauseMenu.selected == 2) {
                 reset();

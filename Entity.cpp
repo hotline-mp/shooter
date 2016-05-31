@@ -42,8 +42,12 @@ void Entity::pause() {
 	lastUpdated = sf::Time(); // 0
 }
 
-void Entity::collisions(std::vector< std::vector<sf::Vector2f> > map) {
+void Entity::collisions(const std::vector< std::vector<sf::Vector2f> > &map) {
 	/* colisions TODO: arreglar */
+
+	if (target_movement == sf::Vector2f(0, 0)) {
+		return;
+	}
 	sf::Vector2f target_position = this->position + this->target_movement;
 
 	sf::Vector2f target_vector = this->target_movement;
@@ -99,7 +103,7 @@ void Entity::collisions(std::vector< std::vector<sf::Vector2f> > map) {
 				}
 			}
 		}
-	} while (collision && i++ < 200); // hacky!
+	} while (collision && i++ < (int)map.size()); // hacky!
 
 	this->position = target_position;
 

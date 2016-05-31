@@ -50,11 +50,16 @@ class Game
 		void pauseMenuHandleEvent(sf::Event &event);
 		void gameOverLoop();
 		void gameOverHandleEvent(sf::Event &event);
+		void optionsMenuLoop();
+		void optionsMenuHandleEvent(sf::Event &event);
 
+		void changeVolume(int a);
+		void setVolumes();
 
 		Menu keysMenu;
 		Menu mainMenu;
 		Menu pauseMenu;
+		Menu optionsMenu;
 
 		void reset();
 
@@ -175,6 +180,14 @@ class Game
 		bool clicked_on_already_selected_point = false;
 		bool dragging = false;
 		sf::Vector2f drag_start_coords;
+
+		sf::Time second_timer;
+		int fps_count = 0;
+		int last_fps_count = 0;
+		sf::Time spent_in_a;
+		sf::Time spent_in_b;
+		sf::Time last_spent_in_a;
+		sf::Time last_spent_in_b;
 
 	public:
 		Game();

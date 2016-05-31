@@ -12,10 +12,6 @@ void Game::mainMenuLoop()
 	view.setCenter(size/2.f);
 	window.setView(view);
 
-	if(!mainMenu_texture.loadFromFile("Mainmenu.png")){
-        exit (1);
-	}
-
     mainMenu_picture.setTexture(mainMenu_texture);
     mainMenu_picture.setOrigin(400,300);
     mainMenu_picture.setPosition(position);
@@ -32,12 +28,11 @@ void Game::mainMenuHandleEvent(sf::Event &event)
 			if (mainMenu.selected == 0) {
 				next_game_state = Playing;
             	music.play();
-				std::cout << "exitmenu" << std::endl;
 			}
 			if (mainMenu.selected == 1) {
 				previous_game_state.push_back(MainMenu);
-				next_game_state = KeysMenu;
-				std::cout << "keysmenu" << std::endl;
+				next_game_state = OptionsMenu;
+				std::cout << "opts" << std::endl;
 			}
 			if (mainMenu.selected == 2) {
 				window.close();

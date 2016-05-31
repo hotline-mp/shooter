@@ -12,6 +12,8 @@ int Game::getConfig() {
 	keys["left"] = sf::Keyboard::A;
 	keys["right"] = sf::Keyboard::D;
 	keys["reload"] = sf::Keyboard::R;
+    sfx_volume = 20;
+    music_volume = 30;
 
 	try
 	{
@@ -40,6 +42,14 @@ int Game::getConfig() {
 			 * ja hem definit el valor per defecte abans */
 		}
 	}
+	try {
+		sfx_volume = cfg.lookup("sfx_volume");
+	} catch(const SettingNotFoundException &nfex) {
+	}
+	try {
+		music_volume = cfg.lookup("music_volume");
+	} catch(const SettingNotFoundException &nfex) {
+	}
 	return 0;
 }
 
@@ -51,6 +61,14 @@ int Game::saveConfig() {
 		}
 		root.add(kv.first, Setting::TypeInt) = kv.second;
 	}
+	if (root.exists("sfx_volume")) {
+		root.remove("sfx_volume");
+	}
+	root.add("sfx_volume", Setting::TypeInt) = sfx_volume;
+	if (root.exists("music_volume")) {
+		root.remove("music_volume");
+	}
+	root.add("music_volume", Setting::TypeInt) = music_volume;
 
 	try
 	{
