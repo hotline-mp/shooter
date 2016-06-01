@@ -48,7 +48,7 @@ void Knife::update(std::vector< std::vector<sf::Vector2f> > map) {
 	lastUpdated = clock->getElapsedTime();
 
 	position += target_movement;
-	if (!between(position.x, -2000, 2000) || !between(position.y, -2000, 2000)) {
+	if (!between(position.x, -20000, 20000) || !between(position.y, -20000, 20000)) {
 		alive = false;
 		return;
 	}

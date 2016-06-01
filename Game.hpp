@@ -180,6 +180,7 @@ class Game
 		int selected_spawn_pos = -1;
 		int selected_warp_pos = -1;
 
+		void select_all();
 		void deselect_all();
 		void maybe_deselect_all();
 		bool anything_selected();

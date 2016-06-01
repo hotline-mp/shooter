@@ -348,7 +348,7 @@ void Game::playingLoop() {
 	window.draw(rs);
 	switch(map_n) {
 	case 0:
-		sf::Vector2f b(-1750, -1095);
+		sf::Vector2f b(0, 0);
 		for (int i=0; i<14; i++) {
 			map_sprite.setTexture(map_textures[i]);
 			map_sprite.setPosition(b+sf::Vector2f(1024*(i%5), 1024*(i/5)));
@@ -358,6 +358,7 @@ void Game::playingLoop() {
         break;
 	}
 
+	dbg_enabled = 0;
 	if (dbg_enabled) {
 		const float dbg_r = 5.f;
 		sf::CircleShape moving_dbg(dbg_r);
@@ -365,15 +366,21 @@ void Game::playingLoop() {
 
 		moving_dbg.setFillColor(sf::Color::Blue);
 		facing_dbg.setFillColor(sf::Color::Red);
-		sf::Vector2f vdbg_r(dbg_r, dbg_r);
-		sf::Vector2f vplayer_r(player.radius, player.radius);
-		moving_dbg.setPosition(
-				player.position + player.moving * player.radius -
-				vdbg_r);
-		facing_dbg.setPosition(player.position +
-				player.facing * player.radius - vdbg_r);
-		window.draw(moving_dbg);
-		window.draw(facing_dbg);
+	//	sf::Vector2f vdbg_r(dbg_r, dbg_r);
+	//	sf::Vector2f vplayer_r(player.radius, player.radius);
+	//	moving_dbg.setPosition(
+	//			player.position + player.moving * player.radius -
+	//			vdbg_r);
+	//	facing_dbg.setPosition(player.position +
+	//			player.facing * player.radius - vdbg_r);
+	//	window.draw(moving_dbg);
+	//	window.draw(facing_dbg);
+
+		if (knives.size() == 1) {
+			facing_dbg.setPosition(player.position +
+					vecUnit(knives[0].position - player.position) * player.radius * 2.f);
+			window.draw(facing_dbg);
+		}
 	}
 
 	bullets.erase(std::remove_if(bullets.begin(), bullets.end(),

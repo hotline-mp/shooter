@@ -6,6 +6,21 @@
 #include <string>
 #include <cstdint>
 
+void Game::select_all() {
+	deselect_all();
+	for (auto itpoly = map.begin(); itpoly != map.end(); itpoly++) {
+		for (auto it = itpoly->begin(); it != itpoly->end(); it++) {
+			selected_points.push_back(
+					std::pair<Map::iterator, Polygon::iterator>(itpoly, it));
+		}
+	}
+	for (auto it = enemies.begin(); it != enemies.end(); it++) {
+		selected_enemies.push_back(it);
+	}
+    selected_spawn_pos = 0;
+    selected_warp_pos = 0;
+}
+
 void Game::deselect_all() {
 	selected_points.clear();
 	selected_enemies.clear();
@@ -107,7 +122,8 @@ void Game::mapEditorLoop() {
 
     switch (map_n) {
 	case 0:
-		sf::Vector2f b(-1750, -1095);
+		//sf::Vector2f b(-1750, -1095);
+		sf::Vector2f b(0, 0);
 		for (int i=0; i<14; i++) {
 			map_sprite.setTexture(map_textures[i]);
 			map_sprite.setPosition(b+sf::Vector2f(1024*(i%5), 1024*(i/5)));
@@ -226,6 +242,11 @@ void Game::mapEditorLoop() {
 		window.draw(text);
 		text.setString("Right click to add nodes, 1 to add enemies");
 		text.setPosition(0, 425);
+		window.draw(text);
+
+		text.setPosition(500, 0);
+		sprintf(txt, "%.0f, %.0f", view.getCenter().x, view.getCenter().y);
+		text.setString(txt);
 		window.draw(text);
 	}
 	if (clock.getElapsedTime() < error_message_timeout) {
@@ -356,6 +377,10 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			show_editor_help = !show_editor_help;
 		} else if (event.key.code == sf::Keyboard::Space) {
             deselect_all();
+		} else if (event.key.code == sf::Keyboard::A) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+				select_all();
+			}
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Right) {
