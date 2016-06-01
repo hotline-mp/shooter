@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 #include "Player.hpp"
 #include "GameState.hpp"
@@ -24,6 +25,10 @@
 
 const int screen_w = 800;
 const int screen_h = 600;
+
+typedef sf::Vector2f Point;
+typedef std::vector<sf::Vector2f> Polygon;
+typedef std::vector<std::vector<sf::Vector2f> > Map;
 
 class Game
 {
@@ -169,8 +174,8 @@ class Game
 		// editor
 		bool show_editor_help = true;
 
-		std::vector<sf::Vector2f*> selected_points;
-		std::vector<Enemy*> selected_enemies;
+		std::vector<std::pair<Map::iterator, Polygon::iterator> > selected_points;
+		std::vector<std::vector<Enemy>::iterator> selected_enemies;
 
 		int selected_spawn_pos = -1;
 		int selected_warp_pos = -1;

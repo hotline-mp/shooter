@@ -31,14 +31,16 @@ sf::Vector2f get_mouse_coords(sf::RenderWindow &window) {
 	return window.mapPixelToCoords(pixelPos);
 }
 
-bool in(std::vector<Enemy*> enemies, Enemy* enemy) {
+bool in(std::vector<std::vector<Enemy>::iterator> enemies,
+		std::vector<Enemy>::iterator enemy) {
 	return std::find(enemies.begin(), enemies.end(), enemy) !=
 		enemies.end();
 }
 
-bool in(std::vector<sf::Vector2f*> points, sf::Vector2f* point) {
-	return std::find(points.begin(), points.end(), point) !=
-		points.end();
+bool in(std::vector<std::pair<Map::iterator, Polygon::iterator> > points,
+		Map::iterator poly, Polygon::iterator point) {
+	std::pair<Map::iterator, Polygon::iterator> p(poly, point);
+	return std::find(points.begin(), points.end(), p) != points.end();
 }
 
 std::vector<sf::Vector2f> *getParentPoly(std::vector<std::vector<sf::Vector2f>> &map,
@@ -74,8 +76,11 @@ void Game::mapEditorLoop() {
 	last_mouse_coords = mouse_coords;
 	if (dragging && distancePointPoint(mouse_coords, drag_start_coords) > 5) {
 		if (selected_points.size() != 0) {
-			for (auto point : selected_points) {
-				*point += mouse_delta;
+			for (auto ppoint : selected_points) {
+				Map::iterator itpoly;
+				Polygon::iterator itpoint;
+				std::tie(itpoly, itpoint) = ppoint;
+				*itpoint += mouse_delta;
 			}
 		}
 
@@ -122,15 +127,17 @@ void Game::mapEditorLoop() {
 		}
 		window.draw(polygon);
 	}
-	for (int i=0; i<(int)map.size(); i++) {
-		for (int j=0; j<(int)map[i].size(); j++) {
+	//for (int i=0; i<(int)map.size(); i++) {
+	//	for (int j=0; j<(int)map[i].size(); j++) {
+	for (auto itpoly = map.begin(); itpoly != map.end(); itpoly++) {
+		for (auto it = itpoly->begin(); it != itpoly->end(); it++) {
 			sf::CircleShape point(3);
 			point.setOrigin(3, 3);
 			point.setFillColor(sf::Color::Green);
-			if (in(selected_points, &map[i][j])) {
+			if (in(selected_points, itpoly, it)) {
 				point.setFillColor(sf::Color::Red);
 			}
-			point.setPosition(map[i][j]);
+			point.setPosition(*it);
 			window.draw(point);
 		}
 	}
@@ -251,11 +258,14 @@ bool testClickedPos(sf::Vector2f pos, sf::Vector2f mouse_coords) {
 }
 
 bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> &map,
-		sf::Vector2f mouse_coords, sf::Vector2f *&clicked_point) {
-	for (int i=0; i<(int)map.size(); i++) {
-		for (int j=0; j<(int)map[i].size(); j++) {
-			if (distancePointPoint(map[i][j], mouse_coords) < 7) {
-				clicked_point = &map[i][j];
+		sf::Vector2f mouse_coords,
+		Map::iterator &poly,
+		Polygon::iterator &clicked_point) {
+	for (auto itpoly = map.begin(); itpoly != map.end(); itpoly++) {
+		for (auto it = itpoly->begin(); it != itpoly->end(); it++) {
+			if (distancePointPoint(*it, mouse_coords) < 7) {
+				clicked_point = it;
+				poly = itpoly;
 				return true;
 			}
 		}
@@ -264,10 +274,11 @@ bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> &map,
 }
 
 bool testClickedPoly(std::vector<std::vector<sf::Vector2f>> &map,
-		sf::Vector2f mouse_coords, std::vector<sf::Vector2f> *&clicked_poly) {
-	for (int i=0; i<(int)map.size(); i++) {
-		if (isPointInPoly(mouse_coords, map[i])) {
-			clicked_poly = &map[i];
+		sf::Vector2f mouse_coords,
+		Map::iterator &clicked_poly) {
+	for (auto itpoly = map.begin(); itpoly != map.end(); itpoly++) {
+		if (isPointInPoly(mouse_coords, *itpoly)) {
+			clicked_poly = itpoly;
 			return true;
 		}
 	}
@@ -275,13 +286,13 @@ bool testClickedPoly(std::vector<std::vector<sf::Vector2f>> &map,
 }
 
 bool testClickedEnemy(std::vector<Enemy> &enemies,
-		sf::Vector2f mouse_coords, Enemy *&clicked_enemy) {
+		sf::Vector2f mouse_coords, std::vector<Enemy>::iterator &clicked_enemy) {
 	int radius = 15;
 
-	clicked_enemy = nullptr;
-	for (auto &enemy : enemies) {
-		if (distancePointPoint(enemy.position, mouse_coords) < radius) {
-			clicked_enemy = &enemy;
+	//for (auto &enemy : enemies) {
+	for (auto it = enemies.begin(); it != enemies.end(); it++) {
+		if (distancePointPoint(it->position, mouse_coords) < radius) {
+			clicked_enemy = it;
 			return true;
 		}
 	}
@@ -302,24 +313,25 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 		}
 		if (event.key.code == sf::Keyboard::Delete) {
 			std::vector<Enemy> new_enemies;
-			for (auto &enemy : enemies) {
+			//for (auto &enemy : enemies) {
+			for (auto it = enemies.begin(); it != enemies.end(); it++) {
 				bool found = false;
 				for (auto senemy : selected_enemies) {
-					if (&enemy == senemy) {
+					if (it == senemy) {
 						found = true;
 					}
 				}
 				if (!found) {
-					new_enemies.push_back(enemy);
+					new_enemies.push_back(*it);
 				}
 			}
 			enemies = new_enemies;
 
 			selected_enemies.clear();
 			for (auto point : selected_points) {
-				for (auto &poly : map) {
-					poly.erase(std::remove(poly.begin(), poly.end(), *point), poly.end());
-				}
+				Map::iterator poly = point.first;
+				Polygon::iterator p = point.second;
+				poly->erase(std::remove(poly->begin(), poly->end(), *p), poly->end());
 			}
 			selected_points.clear();
 			// remove empty polys
@@ -350,46 +362,46 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			if (selected_points.size() == 0) {
 				map.push_back(std::vector<sf::Vector2f>{{mouse_coords}});
 				deselect_all();
-				auto p = &map[map.size()-1];
-				selected_points.push_back(&p->at(p->size()-1));
+				Map::iterator poly = map.end() - 1;
+				Polygon::iterator point = poly->end() - 1;
+				selected_points.push_back(std::pair<Map::iterator, Polygon::iterator>(poly, point));
 			} else if (selected_points.size() == 1) {
-				std::vector<sf::Vector2f> *poly =
-					getParentPoly(map, selected_points[0]);
-				auto p = poly->insert(
-						poly->begin()+(selected_points[0]-&poly->at(0)), mouse_coords);
+				Map::iterator poly = selected_points[0].first;
+				Polygon::iterator point = selected_points[0].second;
+				auto p = poly->insert(point, mouse_coords);
 				deselect_all();
-				selected_points.push_back(&(*p));
+				selected_points.push_back(std::pair<Map::iterator, Polygon::iterator>(poly, p));
 			} else {
 				error_message_timeout = clock.getElapsedTime() + sf::seconds(2);
 				error_message = "Select 0 or 1 point to add points";
 			}
         } else if (event.mouseButton.button == sf::Mouse::Left) {
-			Enemy *e;
-			std::vector<sf::Vector2f> *pl;
-			sf::Vector2f *pt;
+			std::vector<Enemy>::iterator e;
+			Map::iterator pll;
+			Polygon::iterator pt;
 			dragging = true;
 			if (testClickedEnemy(enemies, mouse_coords, e)) {
 				if (!in(selected_enemies, e)) {
 					maybe_deselect_all();
 					selected_enemies.push_back(e);
 				}
-			} else if (testClickedPoint(map, mouse_coords, pt)) {
-				if (!in(selected_points, pt)) {
+			} else if (testClickedPoint(map, mouse_coords, pll, pt)) {
+				if (!in(selected_points, pll, pt)) {
 					maybe_deselect_all();
-					selected_points.push_back(pt);
+					selected_points.push_back(std::pair<Map::iterator, Polygon::iterator>(pll, pt));
 				}
-			} else if (testClickedPoly(map, mouse_coords, pl)) {
+			} else if (testClickedPoly(map, mouse_coords, pll)) {
 				bool selected = true;
-				for (auto &point : *pl) {
-					if (!in(selected_points, &point)) {
+				for (auto it = pll->begin(); it != pll->end(); it++) {
+					if (!in(selected_points, pll, it)) {
 						selected = false;
 						break;
 					}
 				}
 				if (!selected) {
 					maybe_deselect_all();
-					for (auto &point : *pl) {
-						selected_points.push_back(&point);
+					for (auto it = pll->begin(); it != pll->end(); it++) {
+						selected_points.push_back(std::pair<Map::iterator, Polygon::iterator>(pll, it));
 					}
 				}
 			} else if (testClickedPos(spawn_pos, mouse_coords)) {
@@ -414,15 +426,16 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 		if (selecting) {
 			maybe_deselect_all();
 			sf::Rect<float> rect(drag_start_coords, mouse_coords - drag_start_coords);
-			for (auto &enemy : enemies) {
-				if (rect.contains(enemy.position)) {
-					selected_enemies.push_back(&enemy);
+			//for (auto &enemy : enemies) {
+			for (auto it = enemies.begin(); it != enemies.end(); it++) {
+				if (rect.contains(it->position)) {
+					selected_enemies.push_back(it);
 				}
 			}
-			for (auto &poly : map) {
-				for (auto &point : poly) {
-					if (rect.contains(point)) {
-						selected_points.push_back(&point);
+			for (auto itpoly = map.begin(); itpoly != map.end(); itpoly++) {
+				for (auto it = itpoly->begin(); it != itpoly->end(); it++) {
+					if (rect.contains(*it)) {
+						selected_points.push_back(std::pair<Map::iterator, Polygon::iterator>(itpoly, it));
 					}
 				}
 			}
@@ -439,7 +452,7 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 
 int Game::saveMap(int n) {
 	char s[20];
-	sprintf(s, "map%d.dat", map_n);
+	sprintf(s, "map%d.dat", n);
 	//std::string s = "map" + std::to_string(n) + ".dat";
 	return saveMap(s);
 }
@@ -482,7 +495,7 @@ int Game::saveMap(std::string name) {
 
 int Game::loadMap(int n) {
 	char s[20];
-	sprintf(s, "map%d.dat", map_n);
+	sprintf(s, "map%d.dat", n);
 	//std::string s = "map" + std::to_string(n) + ".dat";
 	return loadMap(s);
 }

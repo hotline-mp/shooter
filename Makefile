@@ -3,7 +3,7 @@
 #
 
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -Werror -Wno-unused -g
+CXXFLAGS = -std=c++11 -Wall -Wextra -Werror -Wno-unused -Wfatal-errors -g
 LD = g++
 INCLUDES =
 LIBS = -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lconfig++
