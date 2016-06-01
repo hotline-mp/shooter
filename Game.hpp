@@ -169,12 +169,8 @@ class Game
 		// editor
 		bool show_editor_help = true;
 
-		std::vector< std::vector<sf::Vector2f>* > selected_polys;
 		std::vector<sf::Vector2f*> selected_points;
 		std::vector<Enemy*> selected_enemies;
-		//int selected_poly = -1;
-		//int selected_point = -1;
-		//int selected_enemy = -1;
 
 		int selected_spawn_pos = -1;
 		int selected_warp_pos = -1;
