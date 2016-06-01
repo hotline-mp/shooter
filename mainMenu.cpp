@@ -43,12 +43,14 @@ void Game::mainMenuHandleEvent(sf::Event &event)
 			if (mainMenu.selected >= (int)mainMenu.items.size()) {
 				mainMenu.selected = 0;
 			}
+			menu_choose_sound.play();
 		}
 		if (event.key.code == sf::Keyboard::Up) {
 			mainMenu.selected--;
 			if (mainMenu.selected < 0) {
 				mainMenu.selected = mainMenu.items.size() - 1;
 			}
+			menu_choose_sound.play();
 		}
 		if (event.key.code == sf::Keyboard::Escape) {
 			window.close();

@@ -71,7 +71,7 @@ std::vector<sf::Vector2f> *getParentPoly(std::vector<std::vector<sf::Vector2f>> 
 }
 
 void Game::mapEditorLoop() {
-    	sf::View view = window.getView();
+	sf::View view = window.getView();
 	sf::Vector2f size = view.getSize();
 	sf::Vector2f position = (size/2.f);
 	sf::Time time_now = clock.getElapsedTime();
@@ -120,19 +120,15 @@ void Game::mapEditorLoop() {
 	//draw
 	window.clear(sf::Color::Cyan);
 
-    switch (map_n) {
-	case 0:
-		//sf::Vector2f b(-1750, -1095);
-		sf::Vector2f b(0, 0);
-		for (int i=0; i<14; i++) {
+	if (map_textures.size()) {
+		for (int i=0; i<(int)map_textures.size(); i++) {
 			map_sprite.setTexture(map_textures[i]);
-			map_sprite.setPosition(b+sf::Vector2f(1024*(i%5), 1024*(i/5)));
+			map_sprite.setPosition(bg_offset+sf::Vector2f(1024*(i%bg_width),
+						1024*(i/bg_width)));
 			window.draw(map_sprite);
 		}
 		window.draw(map_sprite);
-        break;
 	}
-
 
 
 	for (int i=0; i<(int)map.size(); i++) {
@@ -143,8 +139,6 @@ void Game::mapEditorLoop() {
 		}
 		window.draw(polygon);
 	}
-	//for (int i=0; i<(int)map.size(); i++) {
-	//	for (int j=0; j<(int)map[i].size(); j++) {
 	for (auto itpoly = map.begin(); itpoly != map.end(); itpoly++) {
 		for (auto it = itpoly->begin(); it != itpoly->end(); it++) {
 			sf::CircleShape point(3);
@@ -514,6 +508,8 @@ int Game::saveMap(std::string name) {
 	write_pos(spawn_pos, out);
 	out << 'w';
 	write_pos(warp_pos, out);
+	out << 'b';
+	write_pos(bg_offset, out);
 	out.close();
 	return 0;
 }
@@ -547,6 +543,21 @@ sf::Vector2f read_point(std::ifstream &file, std::string where="map") {
 }
 
 int Game::loadMap(std::string name) {
+	map.clear();
+	enemies.clear();
+	bullets.clear();
+	knives.clear();
+	magazines.clear();
+	particles.clear();
+	map_textures.clear();
+	spawn_pos = sf::Vector2f(0, 0);
+	warp_pos = sf::Vector2f(20, 0);
+
+	sf::View view = window.getView();
+	view.setCenter(spawn_pos);
+	window.setView(view);
+	player.position = spawn_pos;
+
 	std::ifstream file;
 	file.open(name, std::ios::binary);
 	if (!file.good()) {
@@ -561,12 +572,6 @@ int Game::loadMap(std::string name) {
 		std::cout << head;
 		return 2;
 	}
-	map.clear();
-	enemies.clear();
-	bullets.clear();
-	knives.clear();
-	magazines.clear();
-	particles.clear();
 	while (true) {
 		char c;
 		file.read(&c, 1);
@@ -589,10 +594,27 @@ int Game::loadMap(std::string name) {
 			spawn_pos = read_point(file);
 		} else if (c == 'w') {
 			warp_pos = read_point(file);
+		} else if (c == 'b') {
+			bg_offset = read_point(file);
 		}
 	}
 	player.position = spawn_pos;
 	file.close();
+
+	char buf[50];
+	for (int i=0; i<200; i++) {
+		sprintf(buf, "map%d_%d.png", map_n, i);
+		sf::Texture tex;
+		if (!tex.loadFromFile(buf)) {
+			break;
+		}
+		map_textures.push_back(tex);
+	}
+
+	view.setCenter(spawn_pos);
+	window.setView(view);
+	player.position = spawn_pos;
+
 	return 0;
 }
 

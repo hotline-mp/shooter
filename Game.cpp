@@ -213,25 +213,32 @@ void Game::update() {
 }
 
 void Game::draw() {
-//	text.setPosition(0, 300);
-//	text.setString("hullo " + std::to_string(player.position.y));
-//	window.draw(text);
 	for (Knife &knife : knives) {
         knife.draw();
 	}
-#if 0
-	sf::ConvexShape polygon;
-	polygon.setFillColor(sf::Color::Black);
-	for (auto &points : map) {
-		polygon.setPointCount(points.size());
-		int i=0;
-		for (auto &point : points) {
-			polygon.setPoint(i, point);
-			i++;
+
+	if (map_textures.size()) {
+		for (int i=0; i<(int)map_textures.size(); i++) {
+			map_sprite.setTexture(map_textures[i]);
+			map_sprite.setPosition(bg_offset+sf::Vector2f(1024*(i%bg_width),
+						1024*(i/bg_width)));
+			window.draw(map_sprite);
 		}
-		window.draw(polygon);
+		window.draw(map_sprite);
+	} else {
+		sf::ConvexShape polygon;
+		polygon.setFillColor(sf::Color::Black);
+		for (auto &points : map) {
+			polygon.setPointCount(points.size());
+			int i=0;
+			for (auto &point : points) {
+				polygon.setPoint(i, point);
+				i++;
+			}
+			window.draw(polygon);
+		}
 	}
-#endif
+
 	for (Magazine &mag : magazines) {
         mag.draw();
 	}
@@ -343,21 +350,7 @@ void Game::playingLoop() {
 	//rs.setFillColor(sf::Color(0x59, 0x30, 0x1B));
 	rs.setFillColor(sf::Color::White);
 
-
-
 	window.draw(rs);
-	switch(map_n) {
-	case 0:
-		sf::Vector2f b(0, 0);
-		for (int i=0; i<14; i++) {
-			map_sprite.setTexture(map_textures[i]);
-			map_sprite.setPosition(b+sf::Vector2f(1024*(i%5), 1024*(i/5)));
-			window.draw(map_sprite);
-		}
-		window.draw(map_sprite);
-        break;
-	}
-
 	dbg_enabled = 0;
 	if (dbg_enabled) {
 		const float dbg_r = 5.f;
@@ -606,22 +599,6 @@ int Game::run() {
 		exit(1);
 	}
 
-	//if (!Map1_texture.loadFromFile("Map1.png")) {
-    //    exit(1);
-	//}
-	//Map1_picture.setTexture(Map1_texture);
-	//Map1_picture.setOrigin(2147,1389);
-	char buf[50];
-	for (int i=0; i<14; i++) {
-		sprintf(buf, "map1_%d.png", i);
-		sf::Texture tex;
-		if (!tex.loadFromFile(buf)) {
-			std::cout << buf << std::endl;
-			exit(1);
-		}
-		map_textures.push_back(tex);
-	}
-
 	if (!gunshot_sample.loadFromFile("pistol.wav")) {
 		exit(1);
 	}
@@ -706,18 +683,15 @@ int Game::run() {
 						break;
 					case KeysMenu:
 						keysMenuHandleEvent(event);
-						menu_choose_sound.play();
 						break;
 					case MapEditor:
 						mapEditorHandleEvent(event);
 						break;
                     case MainMenu:
                         mainMenuHandleEvent(event);
-                        menu_choose_sound.play();
                         break;
                     case PauseMenu:
                         pauseMenuHandleEvent(event);
-                        menu_choose_sound.play();
                         break;
                     case GameOver:
                         gameOverHandleEvent(event);

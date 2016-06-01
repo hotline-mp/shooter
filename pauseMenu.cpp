@@ -45,12 +45,14 @@ void Game::pauseMenuHandleEvent(sf::Event &event)
 			if (pauseMenu.selected >= (int)pauseMenu.items.size()) {
 				pauseMenu.selected = 0;
 			}
+			menu_choose_sound.play();
 		}
 		if (event.key.code == sf::Keyboard::Up) {
 			pauseMenu.selected--;
 			if (pauseMenu.selected < 0) {
 				pauseMenu.selected = pauseMenu.items.size() - 1;
 			}
+			menu_choose_sound.play();
 		}
 		if (event.key.code == sf::Keyboard::Escape) {
 			next_game_state = Playing;

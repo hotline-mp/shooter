@@ -66,11 +66,13 @@ void Game::optionsMenuHandleEvent(sf::Event &event)
 			if (optionsMenu.selected >= (int)optionsMenu.items.size()) {
 				optionsMenu.selected = 0;
 			}
+			menu_choose_sound.play();
 		} else if (event.key.code == sf::Keyboard::Up) {
 			optionsMenu.selected--;
 			if (optionsMenu.selected < 0) {
 				optionsMenu.selected = optionsMenu.items.size() - 1;
 			}
+			menu_choose_sound.play();
 		} else if (event.key.code == sf::Keyboard::Escape) {
 			next_game_state = previous_game_state.back();
 			previous_game_state.pop_back();

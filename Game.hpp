@@ -165,7 +165,8 @@ class Game
 
 		std::vector<sf::Texture> map_textures;
         sf::Sprite map_sprite;
-
+		int bg_width = 5;
+		sf::Vector2f bg_offset = sf::Vector2f(0, 0);
 
         int sfx_volume = 20;
         int music_volume = 30;

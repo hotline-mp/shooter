@@ -64,12 +64,14 @@ void Game::keysMenuHandleEvent(sf::Event &event) {
 				if (keysMenu.selected >= (int)keysMenu.items.size()) {
 					keysMenu.selected = 0;
 				}
+				menu_choose_sound.play();
 			}
 			if (event.key.code == sf::Keyboard::Up) {
 				keysMenu.selected--;
 				if (keysMenu.selected < 0) {
 					keysMenu.selected = keysMenu.items.size() - 1;
 				}
+				menu_choose_sound.play();
 			}
 			if (event.key.code == sf::Keyboard::Return) {
 				waiting_for_input = true;
