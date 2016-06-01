@@ -168,21 +168,29 @@ class Game
 
 		// editor
 		bool show_editor_help = true;
-		int selected_poly = -1;
-		int selected_point = -1;
-		int selected_enemy = -1;
+
+		std::vector< std::vector<sf::Vector2f>* > selected_polys;
+		std::vector<sf::Vector2f*> selected_points;
+		std::vector<Enemy*> selected_enemies;
+		//int selected_poly = -1;
+		//int selected_point = -1;
+		//int selected_enemy = -1;
 
 		int selected_spawn_pos = -1;
 		int selected_warp_pos = -1;
 
 		void deselect_all();
+		void maybe_deselect_all();
+		bool anything_selected();
 
 		std::string error_message = "";
 		sf::Time error_message_timeout;
 
 		bool clicked_on_already_selected_point = false;
 		bool dragging = false;
+		bool selecting = false;
 		sf::Vector2f drag_start_coords;
+		sf::Vector2f last_mouse_coords;
 
 		sf::Time second_timer;
 		int fps_count = 0;

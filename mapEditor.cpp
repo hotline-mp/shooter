@@ -7,18 +7,58 @@
 #include <cstdint>
 
 void Game::deselect_all() {
-
-    selected_enemy = -1;
-    selected_poly = -1;
-    selected_point = -1;
+    //selected_enemy = -1;
+    //selected_poly = -1;
+    //selected_point = -1;
+	selected_polys.clear();
+	selected_points.clear();
+	selected_enemies.clear();
     selected_spawn_pos = -1;
     selected_warp_pos = -1;
+}
 
+void Game::maybe_deselect_all() {
+	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+		deselect_all();
+	}
+}
+
+bool Game::anything_selected() {
+	//return (selected_enemy != -1 ||
+	//		selected_poly != -1 ||
+	//		selected_point != -1 ||
+	return (selected_enemies.size() != 0 ||
+			selected_polys.size() != 0 ||
+			selected_points.size() != 0 ||
+			selected_spawn_pos != -1 ||
+			selected_warp_pos != -1);
 }
 
 sf::Vector2f get_mouse_coords(sf::RenderWindow &window) {
 	sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
 	return window.mapPixelToCoords(pixelPos);
+}
+
+bool in(std::vector<Enemy*> enemies, Enemy* enemy) {
+	return std::find(enemies.begin(), enemies.end(), enemy) !=
+		enemies.end();
+}
+
+bool in(std::vector<sf::Vector2f*> points, sf::Vector2f* point) {
+	return std::find(points.begin(), points.end(), point) !=
+		points.end();
+}
+
+std::vector<sf::Vector2f> *getParentPoly(std::vector<std::vector<sf::Vector2f>> &map,
+		sf::Vector2f *p) {
+	for (auto &poly : map) {
+		for (auto &point : poly) {
+			if (&point == p) {
+				return &poly;
+			}
+		}
+	}
+	return nullptr;
 }
 
 void Game::mapEditorLoop() {
@@ -38,26 +78,42 @@ void Game::mapEditorLoop() {
 
 	// dragging
 	sf::Vector2f mouse_coords = get_mouse_coords(window);
-	if (selected_poly != -1 && selected_point != -1 && dragging) {
-		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
-			map[selected_poly][selected_point] = mouse_coords;
+	sf::Vector2f mouse_delta = mouse_coords - last_mouse_coords;
+	last_mouse_coords = mouse_coords;
+	if (dragging && distancePointPoint(mouse_coords, drag_start_coords) > 5) {
+		if (selected_polys.size() != 0) {
+			for (auto poly : selected_polys) {
+				for (auto point : *poly) {
+					// don't move a point twice
+					if (std::find(poly->begin(), poly->end(), point) == poly->end()) {
+						point += mouse_delta;
+					}
+				}
+			}
+		}
+		if (selected_points.size() != 0) {
+			for (auto point : selected_points) {
+				*point += mouse_delta;
+			}
+		}
+
+		if (selected_enemies.size() != 0) {
+			for (auto enemy : selected_enemies) {
+				enemy->position += mouse_delta;
+			}
+			//enemies[selected_enemy].position = mouse_coords;
+		}
+
+		if (selected_spawn_pos != -1) {
+			//spawn_pos = mouse_coords;
+			spawn_pos += mouse_delta;
+		}
+
+		if (selected_warp_pos != -1) {
+			//warp_pos = mouse_coords;
+			warp_pos += mouse_delta;
 		}
 	}
-
-	if (selected_enemy != -1 && dragging) {
-		if (distancePointPoint(mouse_coords, drag_start_coords) > 5) {
-			enemies[selected_enemy].position = mouse_coords;
-		}
-	}
-
-	if (selected_spawn_pos != -1 && dragging) {
-		spawn_pos = mouse_coords;
-	}
-
-	if (selected_warp_pos != -1 && dragging) {
-		warp_pos = mouse_coords;
-	}
-
 
 	view.setCenter(view.getCenter() + player.moving * float(micros * vel));
 	window.setView(view);
@@ -85,7 +141,9 @@ void Game::mapEditorLoop() {
 		for (int j=0; j<(int)map[i].size(); j++) {
 			polygon.setPoint(j, map[i][j]);
 		}
-		if (i == selected_poly) {
+		//if (i == selected_poly) {
+		if (std::find(selected_polys.begin(), selected_polys.end(), &map[i]) !=
+				selected_polys.end()) {
 			polygon.setFillColor(sf::Color::Green);
 		}
 		window.draw(polygon);
@@ -95,12 +153,19 @@ void Game::mapEditorLoop() {
 			sf::CircleShape point(3);
 			point.setOrigin(3, 3);
 			point.setFillColor(sf::Color::Green);
-			if (i == selected_poly) {
-				point.setFillColor(sf::Color::Blue);
-				if (j == selected_point) {
-					point.setFillColor(sf::Color::Red);
-				}
+			//if (i == selected_poly) {
+			if (in(selected_points, &map[i][j])) {
+				point.setFillColor(sf::Color::Red);
 			}
+			//if (std::find(selected_polys.begin(), selected_polys.end(), &map[i]) !=
+			//		selected_polys.end()) {
+			//	point.setFillColor(sf::Color::Blue);
+			//	//if (j == selected_point) {
+			//	if (std::find(selected_points.begin(), selected_points.end(), &map[i][j]) !=
+			//			selected_points.end()) {
+			//		point.setFillColor(sf::Color::Red);
+			//	}
+			//}
 			point.setPosition(map[i][j]);
 			window.draw(point);
 		}
@@ -108,13 +173,21 @@ void Game::mapEditorLoop() {
 	for (auto &enemy : enemies) {
 		enemy.draw();
 	}
-	if (selected_enemy != -1) {
-			sf::CircleShape point(3);
-			point.setOrigin(3, 3);
-			point.setFillColor(sf::Color::Yellow);
-			point.setPosition(enemies[selected_enemy].position);
-			window.draw(point);
+	for (auto enemy : selected_enemies) {
+		sf::CircleShape point(3);
+		point.setOrigin(3, 3);
+		point.setFillColor(sf::Color::Yellow);
+		point.setPosition(enemy->position);
+		window.draw(point);
 	}
+	//if (selected_enemy != -1) {
+	//		sf::CircleShape point(3);
+	//		point.setOrigin(3, 3);
+	//		point.setFillColor(sf::Color::Yellow);
+	//		point.setPosition(enemies[selected_enemy].position);
+	//		window.draw(point);
+	//}
+
 	// draw spawn point
 	sf::CircleShape point(10);
 	point.setOrigin(10, 10);
@@ -141,9 +214,29 @@ void Game::mapEditorLoop() {
 		point.setPosition(warp_pos);
 		window.draw(point);
 	}
-	// draw text
+
+	// drag
+	if (selecting && //!anything_selected() &&
+			distancePointPoint(mouse_coords, drag_start_coords) >= 5) {
+		sf::RectangleShape rs(mouse_coords - drag_start_coords);
+		rs.setPosition(drag_start_coords);
+		rs.setFillColor(sf::Color(0, 0, 0, 0));
+		rs.setOutlineColor(sf::Color::Blue);
+		rs.setOutlineThickness(2);
+		window.draw(rs);
+
+		text.setString("lmao");
+		text.setPosition(500, 0);
+		window.draw(text);
+	} else {
+		text.setString("ayy");
+		text.setPosition(500, 0);
+		window.draw(text);
+	}
+
+	// draw hud
 	view = window.getView();
-	// view for text
+	// view for hud
 	sf::View view0 = view;
 	view0.setCenter(view.getSize()/2.f);
 	window.setView(view0);
@@ -179,10 +272,9 @@ void Game::mapEditorLoop() {
 	text.setString("");
 	// normal view
 	window.setView(view);
-
 }
 
-bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> map,
+bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> &map,
 		sf::Vector2f mouse_coords, int &selected_poly, int &selected_point) {
 	bool found = false;
 	for (int i=0; i<(int)map.size(); i++) {
@@ -195,6 +287,48 @@ bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> map,
 		}
 	}
 	return found;
+}
+
+bool testClickedPos(sf::Vector2f pos, sf::Vector2f mouse_coords) {
+	return distancePointPoint(pos, mouse_coords) < 7;
+}
+
+bool testClickedPoint(std::vector<std::vector<sf::Vector2f>> &map,
+		sf::Vector2f mouse_coords, sf::Vector2f *&clicked_point) {
+	for (int i=0; i<(int)map.size(); i++) {
+		for (int j=0; j<(int)map[i].size(); j++) {
+			if (distancePointPoint(map[i][j], mouse_coords) < 7) {
+				clicked_point = &map[i][j];
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool testClickedPoly(std::vector<std::vector<sf::Vector2f>> &map,
+		sf::Vector2f mouse_coords, std::vector<sf::Vector2f> *&clicked_poly) {
+	for (int i=0; i<(int)map.size(); i++) {
+		if (isPointInPoly(mouse_coords, map[i])) {
+			clicked_poly = &map[i];
+			return true;
+		}
+	}
+	return false;
+}
+
+bool testClickedEnemy(std::vector<Enemy> &enemies,
+		sf::Vector2f mouse_coords, Enemy *&clicked_enemy) {
+	int radius = 15;
+
+	clicked_enemy = nullptr;
+	for (auto &enemy : enemies) {
+		if (distancePointPoint(enemy.position, mouse_coords) < radius) {
+			clicked_enemy = &enemy;
+			return true;
+		}
+	}
+	return false;
 }
 
 void Game::mapEditorHandleEvent(sf::Event &event) {
@@ -210,18 +344,57 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			enemies[enemies.size()-1].position = mouse_coords;
 		}
 		if (event.key.code == sf::Keyboard::Delete) {
-			if (selected_enemy != -1) {
-				enemies.erase(enemies.begin() + selected_enemy);
-				selected_enemy = -1;
-			} else if (selected_poly != -1) {
-				if (selected_point != -1) {
-					map[selected_poly].erase(map[selected_poly].begin() + selected_point);
-					selected_point = -1;
-				} else {
-					map.erase(map.begin() + selected_poly);
-					selected_poly = -1;
+			std::vector<Enemy> new_enemies;
+			for (auto &enemy : enemies) {
+				bool found = false;
+				for (auto senemy : selected_enemies) {
+					if (&enemy == senemy) {
+						found = true;
+					}
+				}
+				if (!found) {
+					new_enemies.push_back(enemy);
 				}
 			}
+			enemies = new_enemies;
+
+			//std::cout << enemies.size() << std::endl;
+			//for (auto enemy : selected_enemies) {
+			//	std::cout << (intptr_t)enemy << std::endl;
+			//	//enemies.erase(std::remove(enemies.begin(), enemies.end(), *enemy), enemies.end());
+			//	//enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
+			//	//			[enemy](Enemy &b) { return &b == enemy; }), enemies.end());
+
+			//	enemies.erase(std::remove_if(enemies.begin(), enemies.end(),
+			//				[enemy](Enemy &b) {
+			//				std::cout << "lmao" << (intptr_t)(enemy) << " " << (intptr_t)(&b) << std::endl;
+			//				return &b != enemy; }), enemies.end());
+			//}
+			selected_enemies.clear();
+			for (auto point : selected_points) {
+				for (auto &poly : map) {
+					poly.erase(std::remove(poly.begin(), poly.end(), *point), poly.end());
+				}
+			}
+			selected_points.clear();
+			for (auto poly : selected_polys) {
+				map.erase(std::remove(map.begin(), map.end(), *poly), map.end());
+			}
+			selected_polys.clear();
+			map.erase(std::remove_if(map.begin(), map.end(),
+						[](std::vector<sf::Vector2f> &b) { return b.size() == 0; }), map.end());
+			//if (selected_enemy != -1) {
+			//	enemies.erase(enemies.begin() + selected_enemy);
+			//	selected_enemy = -1;
+			//} else if (selected_poly != -1) {
+			//	if (selected_point != -1) {
+			//		map[selected_poly].erase(map[selected_poly].begin() + selected_point);
+			//		selected_point = -1;
+			//	} else {
+			//		map.erase(map.begin() + selected_poly);
+			//		selected_poly = -1;
+			//	}
+			//}
 		}
 		if (event.key.code == sf::Keyboard::F1) { // save
 			if (saveMap(map_n)) exit(1);
@@ -239,68 +412,149 @@ void Game::mapEditorHandleEvent(sf::Event &event) {
 			map_n++;
 		} else if (event.key.code == sf::Keyboard::F5) {
 			show_editor_help = !show_editor_help;
+		} else if (event.key.code == sf::Keyboard::Space) {
+            deselect_all();
 		}
 	} else if (event.type == sf::Event::MouseButtonPressed) {
         if (event.mouseButton.button == sf::Mouse::Right) {
-			if (selected_poly == -1) {
+			if (selected_points.size() == 0) {
 				map.push_back(std::vector<sf::Vector2f>{{mouse_coords}});
-				selected_poly = map.size() - 1;
+				deselect_all();
+				auto p = &map[map.size()-1];
+				selected_points.push_back(&p->at(p->size()-1));
+			} else if (selected_points.size() == 1) {
+				std::vector<sf::Vector2f> *poly =
+					getParentPoly(map, selected_points[0]);
+				auto p = poly->insert(
+						poly->begin()+(selected_points[0]-&poly->at(0)), mouse_coords);
+				deselect_all();
+				selected_points.push_back(&(*p));
 			} else {
-				if (selected_point == -1) {
-					map[selected_poly].push_back(mouse_coords);
-				} else {
-					auto poly = &map[selected_poly];
-					poly->insert(poly->begin()+selected_point, mouse_coords);
-				}
+				error_message_timeout = clock.getElapsedTime() + sf::seconds(2);
+				error_message = "Select 0 or 1 point to add points";
 			}
+			//if (selected_poly == -1) {
+			//	map.push_back(std::vector<sf::Vector2f>{{mouse_coords}});
+			//	selected_poly = map.size() - 1;
+			//} else {
+			//	if (selected_point == -1) {
+			//		map[selected_poly].push_back(mouse_coords);
+			//	} else {
+			//		auto poly = &map[selected_poly];
+			//		poly->insert(poly->begin()+selected_point, mouse_coords);
+			//	}
+			//}
         } else if (event.mouseButton.button == sf::Mouse::Left) {
-			int previous = selected_point;
-            deselect_all();
-			drag_start_coords = mouse_coords;
-			if (testClickedPoint(map, mouse_coords, selected_poly, selected_point)) {
-				clicked_on_already_selected_point = (selected_point == previous);
-				dragging = true;
-			} else if (distancePointPoint(mouse_coords, spawn_pos) < 7) {
-				if (selected_spawn_pos != -1) {
-					selected_spawn_pos = -1;
-				} else {
-					selected_spawn_pos = 0;
-					dragging = true;
+			Enemy *e;
+			std::vector<sf::Vector2f> *pl;
+			sf::Vector2f *pt;
+			dragging = true;
+			if (testClickedEnemy(enemies, mouse_coords, e)) {
+				if (!in(selected_enemies, e)) {
+					maybe_deselect_all();
+					selected_enemies.push_back(e);
 				}
-			} else if (distancePointPoint(mouse_coords, warp_pos) < 7) {
-				if (selected_warp_pos != -1) {
-					selected_warp_pos = -1;
-				} else {
-					selected_warp_pos = 0;
-					dragging = true;
+			} else if (testClickedPoint(map, mouse_coords, pt)) {
+				if (!in(selected_points, pt)) {
+					maybe_deselect_all();
+					selected_points.push_back(pt);
 				}
+			} else if (testClickedPoly(map, mouse_coords, pl)) {
+				bool selected = true;
+				for (auto &point : *pl) {
+					if (!in(selected_points, &point)) {
+						selected = false;
+						break;
+					}
+				}
+				if (!selected) {
+					maybe_deselect_all();
+					for (auto &point : *pl) {
+						selected_points.push_back(&point);
+					}
+				}
+			} else if (testClickedPos(spawn_pos, mouse_coords)) {
+				if (selected_spawn_pos == -1) {
+					maybe_deselect_all();
+				}
+				selected_spawn_pos = 0;
+			} else if (testClickedPos(warp_pos, mouse_coords)) {
+				if (selected_warp_pos == -1) {
+					maybe_deselect_all();
+				}
+				selected_warp_pos = 0;
 			} else {
-				for (int i=0; i<(int)enemies.size(); i++) {
-					if (distancePointPoint(enemies[i].position, mouse_coords) < 7) {
-						selected_enemy = i;
-						dragging = true;
-					}
-				}
-				if (selected_enemy == -1) {
-					bool found = false;
-					for (int i=0; i<(int)map.size(); i++) {
-						if (isPointInPoly(mouse_coords, map[i])) {
-							found = true;
-							selected_poly = i;
-							break;
-						}
-					}
-				}
+				selecting = true;
+				dragging = false;
 			}
+			//int previous = selected_point;
+            //deselect_all();
+			drag_start_coords = mouse_coords;
+			last_mouse_coords = mouse_coords;
+			//dragging = true;
+			//if (testClickedPoint(map, mouse_coords, selected_poly, selected_point)) {
+			//	clicked_on_already_selected_point = (selected_point == previous);
+			//} else if (distancePointPoint(mouse_coords, spawn_pos) < 7) {
+			//	if (selected_spawn_pos != -1) {
+			//		selected_spawn_pos = -1;
+			//	} else {
+			//		selected_spawn_pos = 0;
+			//	}
+			//} else if (distancePointPoint(mouse_coords, warp_pos) < 7) {
+			//	if (selected_warp_pos != -1) {
+			//		selected_warp_pos = -1;
+			//	} else {
+			//		selected_warp_pos = 0;
+			//	}
+			//} else {
+			//	for (int i=0; i<(int)enemies.size(); i++) {
+			//		if (distancePointPoint(enemies[i].position, mouse_coords) < 7) {
+			//			selected_enemy = i;
+			//		}
+			//	}
+			//	if (selected_enemy == -1) {
+			//		bool found = false;
+			//		for (int i=0; i<(int)map.size(); i++) {
+			//			if (isPointInPoly(mouse_coords, map[i])) {
+			//				found = true;
+			//				selected_poly = i;
+			//				break;
+			//			}
+			//		}
+			//	}
+			//}
 		}
 	} else if (event.type == sf::Event::MouseButtonReleased) {
+		//if (selected_poly != -1 && selected_point != -1) {
+		//	if (clicked_on_already_selected_point) {
+		//		// de-select
+		//		selected_point = -1;
+		//	}
+		//}
 		dragging = false;
-		if (selected_poly != -1 && selected_point != -1) {
-			if (clicked_on_already_selected_point) {
-				// de-select
-				selected_point = -1;
+		if (selecting) {
+			maybe_deselect_all();
+			sf::Rect<float> rect(drag_start_coords, mouse_coords - drag_start_coords);
+			for (auto &enemy : enemies) {
+				if (rect.contains(enemy.position)) {
+					selected_enemies.push_back(&enemy);
+				}
+			}
+			for (auto &poly : map) {
+				for (auto &point : poly) {
+					if (rect.contains(point)) {
+						selected_points.push_back(&point);
+					}
+				}
+			}
+			if (rect.contains(spawn_pos)) {
+				selected_spawn_pos = 0;
+			}
+			if (rect.contains(warp_pos)) {
+				selected_warp_pos = 0;
 			}
 		}
+		selecting = false;
 	}
 }
 
