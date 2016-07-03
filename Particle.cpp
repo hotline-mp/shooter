@@ -52,8 +52,15 @@ void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
 		vvel = r;
 	}
 	target_movement = vvel * float(micros);
+	// velocity limiting is ugly
+	/*
+	if (distancePointPoint(sf::Vector2f(0, 0), target_movement) > 35) {
+		target_movement = vecUnit(vvel) * 35.f;
+	}
+	*/
 	lastUpdated = clock->getElapsedTime();
 
+	prev_pos = position;
 	position += target_movement;
 	if (!between(position.x, -20000, 20000) || !between(position.y, -20000, 20000)) {
 		alive = false;
@@ -61,7 +68,8 @@ void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
 	}
 	if (collide) {
 		for (auto &polygon : map) {
-			if (isPointInPoly(position, polygon)) {
+			//if (isPointInPoly(position, polygon)) {
+			if (lineCrossesPoly(prev_pos, position, polygon)) {
 			//if (circleCrossingPolygonAxis(position, std::max(radius, 3.f), polygon) ||
 			//		isPointInPoly(position, polygon)) {
 				//vvel = sf::Vector2f(0, 0);

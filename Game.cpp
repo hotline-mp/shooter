@@ -31,6 +31,8 @@ Game::Game() : player(&clock, &window) {
 	window.setVerticalSyncEnabled(true);
 	window.setMouseCursorVisible(false);
 
+	//window.setFramerateLimit(20);
+
 	srand(time(NULL));
 }
 
@@ -131,14 +133,15 @@ void Game::update() {
 	for (auto &bullet : bullets) {
         bullet.update(map);
 		for (auto &enemy : enemies) {
-
+			// if we already hit that enemy, don't hit it again
 			if (std::find(
 						bullet.enemies_hit.begin(),
 						bullet.enemies_hit.end(),
 						&enemy) != bullet.enemies_hit.end()) {
 				continue;
 			}
-			if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
+			//if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
+			if (lineCrossesCircle(bullet.prev_pos, bullet.position, enemy.position, enemy.radius)) {
 				bullet.enemies_hit.push_back(&enemy);
 				if (rand() % 3 == 0) {
 					splashBlood(enemy, bullet.vvel, 10);
@@ -195,12 +198,13 @@ void Game::update() {
 	}
 
 	if (enemies.size() == 0 &&
-			distancePointPoint(player.position, warp_pos) < 20) {
+			distancePointPoint(player.position, warp_pos) < 30) {
 		map_n += 1;
 		if(loadMap(map_n) != 0) {
 			// fin
 			music.stop();
 			next_game_state = GameOver;
+			input_timeout = clock.getElapsedTime() + sf::milliseconds(1000);
 			victory_music.play();
 		}
 	}
@@ -213,10 +217,6 @@ void Game::update() {
 }
 
 void Game::draw() {
-	for (Knife &knife : knives) {
-        knife.draw();
-	}
-
 	if (map_textures.size()) {
 		for (int i=0; i<(int)map_textures.size(); i++) {
 			map_sprite.setTexture(map_textures[i]);
@@ -239,6 +239,9 @@ void Game::draw() {
 		}
 	}
 
+	for (Knife &knife : knives) {
+        knife.draw();
+	}
 	for (Magazine &mag : magazines) {
         mag.draw();
 	}
@@ -277,6 +280,31 @@ void Game::draw() {
 		sf::Vector2f v = (mouse_pos - (player.position)) / 5.f * (float)i;
 		point.setPosition(player.position+v);
 		window.draw(point);
+	}
+
+	dbg_enabled = 1;
+	if (dbg_enabled) {
+		const float dbg_r = 5.f;
+		sf::CircleShape moving_dbg(dbg_r);
+		sf::CircleShape facing_dbg(dbg_r);
+
+		moving_dbg.setFillColor(sf::Color::Blue);
+		facing_dbg.setFillColor(sf::Color::Red);
+	//	sf::Vector2f vdbg_r(dbg_r, dbg_r);
+	//	sf::Vector2f vplayer_r(player.radius, player.radius);
+	//	moving_dbg.setPosition(
+	//			player.position + player.moving * player.radius -
+	//			vdbg_r);
+	//	facing_dbg.setPosition(player.position +
+	//			player.facing * player.radius - vdbg_r);
+	//	window.draw(moving_dbg);
+	//	window.draw(facing_dbg);
+
+		if (knives.size() == 1) {
+			facing_dbg.setPosition(player.position +
+					vecUnit(knives[0].position - player.position) * player.radius * 2.f);
+			window.draw(facing_dbg);
+		}
 	}
 
 	// hud
@@ -351,30 +379,6 @@ void Game::playingLoop() {
 	rs.setFillColor(sf::Color::White);
 
 	window.draw(rs);
-	dbg_enabled = 0;
-	if (dbg_enabled) {
-		const float dbg_r = 5.f;
-		sf::CircleShape moving_dbg(dbg_r);
-		sf::CircleShape facing_dbg(dbg_r);
-
-		moving_dbg.setFillColor(sf::Color::Blue);
-		facing_dbg.setFillColor(sf::Color::Red);
-	//	sf::Vector2f vdbg_r(dbg_r, dbg_r);
-	//	sf::Vector2f vplayer_r(player.radius, player.radius);
-	//	moving_dbg.setPosition(
-	//			player.position + player.moving * player.radius -
-	//			vdbg_r);
-	//	facing_dbg.setPosition(player.position +
-	//			player.facing * player.radius - vdbg_r);
-	//	window.draw(moving_dbg);
-	//	window.draw(facing_dbg);
-
-		if (knives.size() == 1) {
-			facing_dbg.setPosition(player.position +
-					vecUnit(knives[0].position - player.position) * player.radius * 2.f);
-			window.draw(facing_dbg);
-		}
-	}
 
 	bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
 				[](Bullet &b) { return !b.alive; }), bullets.end());
@@ -644,12 +648,12 @@ int Game::run() {
     }
     zombie_death_sound.setBuffer(zombie_death_sample);
 
-	if(!mainMenu_music.openFromFile("re_your_brains.ogg")) {
-        exit (1);
-    }
-    mainMenu_music.setLoop(true);
+	//if(!mainMenu_music.openFromFile("re_your_brains.ogg")) {
+    //    exit (1);
+    //}
+    //mainMenu_music.setLoop(true);
 	setVolumes();
-    mainMenu_music.play();
+    //mainMenu_music.play();
 
 
 	if (!music.openFromFile("music.ogg")) {
@@ -731,7 +735,7 @@ int Game::run() {
                 break;
 			case GameOver:
 				gameOverLoop();
-				mainMenu_music.play();
+				//mainMenu_music.play();
 				break;
             case OptionsMenu:
                 optionsMenuLoop();

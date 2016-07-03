@@ -1,11 +1,6 @@
 #include "Entity.hpp"
 #include "vector.hpp"
 
-void Entity::setPosition(float x, float y) {
-	this->position.x = x;
-	this->position.y = y;
-}
-
 void Entity::setMoving(float x, float y) {
 	this->moving.x = x;
 	this->moving.y = y;

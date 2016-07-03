@@ -130,4 +130,14 @@ bool circleCrossingPolygonAxis(sf::Vector2f point, float radius,
 	return false;
 }
 
+bool lineCrossesCircle(sf::Vector2f A, sf::Vector2f B, sf::Vector2f C, float r) {
+	sf::Vector2f d = B - A;
+	sf::Vector2f f = A - C;
+
+	float a = dotProduct(d, d);
+	float b = 2*dotProduct(f, d);
+	float c = dotProduct(f, f) - r*r;
+	float dis = b * b - 4 * a * c;
+	return dis >= 0;
+}
 

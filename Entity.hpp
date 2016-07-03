@@ -17,14 +17,15 @@ class Entity
 		sf::Time lastUpdated;
 	public:
 		sf::Vector2f position;
+		sf::Vector2f prev_pos;
 		sf::Vector2f moving; // direcció en la que s'intenta moure
 		sf::Vector2f target_movement;
 		sf::Vector2f facing; // vector unitari
+
 		float vel; // pixels / ms
 		float radius; // pixels
 		bool alive;
 		bool visible;
-		void setPosition(float x, float y);
 		void setMoving(float x, float y);
 		void setFacing(float x, float y);
 		void draw();

@@ -14,5 +14,6 @@ float distanceLinePoint(sf::Vector2f A, sf::Vector2f B, sf::Vector2f P);
 bool isPointInPoly(sf::Vector2f P, const std::vector<sf::Vector2f> &poly);
 bool lineCrossesPoly(sf::Vector2f A, sf::Vector2f B, const std::vector<sf::Vector2f> &poly);
 bool circleCrossingPolygonAxis(sf::Vector2f point, float radius, const std::vector<sf::Vector2f> &polygon);
+bool lineCrossesCircle(sf::Vector2f A, sf::Vector2f B, sf::Vector2f C, float r);
 
 #endif /* !VECTOR_HPP */
