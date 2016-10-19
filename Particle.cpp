@@ -27,7 +27,8 @@ void Particle::draw() {
 }
 
 void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
-	if (vvel == sf::Vector2f(0, 0)) {
+	// TODO: simplify, make faster
+	if (vvel == sf::Vector2f(0, 0) || vecLength(vvel) < .00001f) {
 		return;
 	}
 
@@ -39,9 +40,7 @@ void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
 	}
 	long long micros = time_now.asMicroseconds() - lastUpdated.asMicroseconds();
 	sf::Vector2f a = vecUnit(vvel) * float(accel * micros);
-	sf::Vector2f r = vvel + a;
-	if ((vvel.x > 0 && r.x < 0) || (vvel.x < 0 && r.x > 0) ||
-			(vvel.y > 0 && r.y < 0) || (vvel.y < 0 && r.y > 0)) {
+	if (vecLength(a) < float(accel * micros)) {
 		vvel = sf::Vector2f(0, 0);
 		accel = 0;
 		if (disappear) {
@@ -49,15 +48,11 @@ void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
 		}
 		return;
 	} else {
-		vvel = r;
+		vvel += a;
 	}
+
 	target_movement = vvel * float(micros);
-	// velocity limiting is ugly
-	/*
-	if (distancePointPoint(sf::Vector2f(0, 0), target_movement) > 35) {
-		target_movement = vecUnit(vvel) * 35.f;
-	}
-	*/
+
 	lastUpdated = clock->getElapsedTime();
 
 	prev_pos = position;
@@ -68,12 +63,9 @@ void Particle::update(const std::vector< std::vector<sf::Vector2f> > &map) {
 	}
 	if (collide) {
 		for (auto &polygon : map) {
-			//if (isPointInPoly(position, polygon)) {
+			// TODO: Try to call this less
 			if (lineCrossesPoly(prev_pos, position, polygon)) {
-			//if (circleCrossingPolygonAxis(position, std::max(radius, 3.f), polygon) ||
-			//		isPointInPoly(position, polygon)) {
-				//vvel = sf::Vector2f(0, 0);
-				accel *= 3;
+				vvel = sf::Vector2f(0, 0);
 				if (disappear) {
 					alive = false;
 				}

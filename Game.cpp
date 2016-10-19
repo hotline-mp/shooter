@@ -114,6 +114,7 @@ void Game::update() {
 
 			player.hit(player.position - enemy.position);
 			flash_timeout = clock.getElapsedTime() + sf::milliseconds(40);
+
 			player.hp -= 20;
 			hurt_sound.play();
 			if (player.hp <= 0) {
@@ -132,6 +133,7 @@ void Game::update() {
 
 	for (auto &bullet : bullets) {
         bullet.update(map);
+
 		for (auto &enemy : enemies) {
 			// if we already hit that enemy, don't hit it again
 			if (std::find(
@@ -140,7 +142,6 @@ void Game::update() {
 						&enemy) != bullet.enemies_hit.end()) {
 				continue;
 			}
-			//if (distancePointPoint(bullet.position, enemy.position) < enemy.radius) {
 			if (lineCrossesCircle(bullet.prev_pos, bullet.position, enemy.position, enemy.radius)) {
 				bullet.enemies_hit.push_back(&enemy);
 				if (rand() % 3 == 0) {
@@ -318,31 +319,35 @@ void Game::draw() {
 	text.setPosition(3, 3);
 	sprintf(buf, "%d", last_fps_count);
 	text.setString(buf);
-	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	text.setFillColor(sf::Color(0xA6, 0x0B, 0));
+	if (frame_timer + sf::milliseconds(1000 / 120) > clock.getElapsedTime()) {
+		text.setFillColor(sf::Color(0xA6, 0xFB, 0));
+	}
+	frame_timer = clock.getElapsedTime();
 	window.draw(text);
 
 	// dbg
 	text.setPosition(3, 30);
 	sprintf(buf, "%d", last_spent_in_a.asMilliseconds());
 	text.setString(buf);
-	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	text.setFillColor(sf::Color(0xA6, 0x0B, 0));
 	window.draw(text);
 	text.setPosition(3, 60);
 	sprintf(buf, "%d", last_spent_in_b.asMilliseconds());
 	text.setString(buf);
-	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	text.setFillColor(sf::Color(0xA6, 0x0B, 0));
 	window.draw(text);
 	text.setPosition(3, 90);
 	sprintf(buf, "%f %f", player.position.x, player.position.y);
 	text.setString(buf);
-	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	text.setFillColor(sf::Color(0xA6, 0x0B, 0));
 	window.draw(text);
 
 	// hp
 	text.setPosition(10, screen_h*16/20);
 	sprintf(buf, "health: %d / 100 ", player.hp);
 	text.setString(buf);
-	text.setColor(sf::Color(0xA6, 0x0B, 0));
+	text.setFillColor(sf::Color(0xA6, 0x0B, 0));
 	window.draw(text);
 
 	// ammo
@@ -350,7 +355,7 @@ void Game::draw() {
 	sprintf(buf, "ammo: %d / %d %s", player.ammo, player.extra_ammo,
 			player.reloading ? "reloading..." : "");
 	text.setString(buf);
-	text.setColor(sf::Color(0xAA, 0x33, 0));
+	text.setFillColor(sf::Color(0xAA, 0x33, 0));
 	window.draw(text);
 
 	window.setView(view);
@@ -433,6 +438,7 @@ void Game::playingHandleEvent(sf::Event &event) {
 				//sf::Vector2f vel = vecUnit(pos - player.position) * 0.002f;
 				Bullet bullet(&clock, &window, vel);
 				bullet.position = pos;
+				bullet.prev_pos = pos;
 				bullets.push_back(bullet);
 				gunshot_sound.play();
 				for (int i=-10; i<10; i++) {
@@ -466,7 +472,8 @@ void Game::gameOverHandleEvent(sf::Event &event) {
 	if (!window.hasFocus()) {
 		return;
 	}
-	if (clock.getElapsedTime() > input_timeout && event.type == sf::Event::KeyPressed) {
+	if (clock.getElapsedTime() > input_timeout &&
+			event.type == sf::Event::KeyPressed) {
 		reset();
 		next_game_state = MainMenu;
 		gameOver_music.stop();
@@ -492,7 +499,7 @@ void Game::gameOverLoop() {
 	if (clock.getElapsedTime() > input_timeout) {
 		text.setPosition(270, screen_h*70/100);
 		text.setString("Press any key to continue...");
-		text.setColor(sf::Color(0, 0, 0));
+		text.setFillColor(sf::Color(0, 0, 0));
 		window.draw(text);
 	}
 	window.setView(view);
@@ -509,10 +516,10 @@ void Game::setVolumes() {
 	reload_sound.setVolume(sfx_volume);
 	knife_sound.setVolume(sfx_volume);
     zombies_sound.setVolume(sfx_volume);
-	game_over_sound.setVolume(100);
+	game_over_sound.setVolume(50);
     menu_choose_sound.setVolume(sfx_volume);
     hurt_sound.setVolume(sfx_volume);
-    death_scream_sound.setVolume(50);
+    death_scream_sound.setVolume(20);
     zombie_death_sound.setVolume(sfx_volume);
     mainMenu_music.setVolume(music_volume);
 	music.setVolume(music_volume);
@@ -569,7 +576,7 @@ int Game::run() {
 	}
 	text.setFont(font);
 	text.setCharacterSize(24);
-	text.setColor(sf::Color::Black);
+	text.setFillColor(sf::Color::Black);
 
 	textures.push_back(sf::Texture());
 	textures[0].loadFromFile("enemy1.png");
@@ -749,9 +756,11 @@ int Game::run() {
 
 		fps_count += 1;
 		if (clock.getElapsedTime() > second_timer) {
-			last_fps_count = fps_count;
+			const float sample_rate = 2;
+			last_fps_count = fps_count * sample_rate;
+			//std::cout << last_fps_count << std::endl;
 			fps_count = 0;
-			second_timer = clock.getElapsedTime() + sf::milliseconds(1000);
+			second_timer = clock.getElapsedTime() + sf::milliseconds(1000/sample_rate);
 			last_spent_in_a = spent_in_a;
 			last_spent_in_b = spent_in_b;
 			spent_in_a = sf::Time();
@@ -767,7 +776,8 @@ sf::Vector2f Game::bulletSpawnPosition(bool &possible){
 	possible = true;
 	sf::Vector2f pos = player.position + player.facing * (player.radius * 2);
 	for (auto &polygon : map) {
-		if (isPointInPoly(pos, polygon)) {
+		//if (isPointInPoly(pos, polygon)) {
+		if (lineCrossesPoly(pos, player.position, polygon)) {
 			possible = false;
 			break;
 		}

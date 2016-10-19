@@ -22,13 +22,10 @@
 #include "Grenade.hpp"
 #include "Knife.hpp"
 #include "Magazine.hpp"
+#include "vector.hpp"
 
 const int screen_w = 800;
 const int screen_h = 600;
-
-typedef sf::Vector2f Point;
-typedef std::vector<sf::Vector2f> Polygon;
-typedef std::vector<std::vector<sf::Vector2f> > Map;
 
 class Game
 {
@@ -202,6 +199,7 @@ class Game
 		sf::Time spent_in_b;
 		sf::Time last_spent_in_a;
 		sf::Time last_spent_in_b;
+		sf::Time frame_timer;
 
 	public:
 		Game();

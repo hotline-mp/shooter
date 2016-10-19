@@ -39,19 +39,31 @@ void Knife::update(std::vector< std::vector<sf::Vector2f> > map) {
 
 	sf::Vector2f prev_pos = position;
 	position += target_movement;
-	if (!between(position.x, -20000, 20000) || !between(position.y, -20000, 20000)) {
+	if (!between(position.x, -20000, 20000) ||
+			!between(position.y, -20000, 20000)) {
 		alive = false;
 		return;
 	}
 	for (auto &polygon : map) {
+		bool col;
+		Point c;
+		std::tie(col, c) = castRayOntoPoly(prev_pos, position, polygon);
+		if (col) {
+			vvel = sf::Vector2f(0, 0);
+			position = c + vecUnit(prev_pos - position) * radius * 0.5f;
+			return;
+		}
+
+		/*
 		//if (point_in_polygon(position, polygon)) {
 		if (lineCrossesPoly(prev_pos, position, polygon)) {
-		//if (circleCrossingPolygonAxis(position, std::max(radius, 3.f), polygon) ||
-		//		isPointInPoly(position, polygon)) {
+		//if (circleCrossingPolygonAxis(position, std::max(radius, 3.f),
+		// polygon) || isPointInPoly(position, polygon)) {
 			//alive = false;
 			vvel = sf::Vector2f(0, 0);
 			position = prev_pos;
 			return;
 		}
+		*/
 	}
 }

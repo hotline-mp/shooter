@@ -38,8 +38,6 @@ void Entity::pause() {
 }
 
 void Entity::collisions(const std::vector< std::vector<sf::Vector2f> > &map) {
-	/* colisions TODO: arreglar */
-
 	if (target_movement == sf::Vector2f(0, 0)) {
 		return;
 	}
@@ -48,11 +46,14 @@ void Entity::collisions(const std::vector< std::vector<sf::Vector2f> > &map) {
 	sf::Vector2f target_vector = this->target_movement;
 
 	bool collision = false;
-	int i = 0;
-	do {
-		collision = false;
+	//
+	for (int ii=0; ii<2; ii++) {
 		for (const std::vector<sf::Vector2f> &polygon : map) {
+			if (polygon.size() < 2) {
+				continue;
+			}
 			// iterem pels punts de dos en dos (segment a segment)
+			std::vector< std::tuple<Point, Point> > lines_crossing;
 			for (int i=0; i<(int)polygon.size(); i++) {
 				sf::Vector2f pointA = polygon[i];
 				sf::Vector2f pointB;
@@ -61,46 +62,48 @@ void Entity::collisions(const std::vector< std::vector<sf::Vector2f> > &map) {
 				} else {
 					pointB = polygon[i+1];
 				}
-				// col.lisió amb les cantonades - hack
-				if (distancePointPoint(pointA, target_position) < radius * 1.1) {
-					sf::Vector2f c = target_position - pointA;
-					sf::Vector2f tan = sf::Vector2f(c.y, -c.x);
-					sf::Vector2f tanu = vecUnit(tan);
-					sf::Vector2f tanp = tanu * dotProduct(vecUnit(target_vector), tanu);
-					if (tanp == sf::Vector2f(0, 0) ||
-							dotProduct(-vecUnit(c), vecUnit(target_vector)) > 0.95f) {
-						target_vector = sf::Vector2f(0, 0);
-					} else {
-						sf::Vector2f tan_oberta = vecUnit(vecUnit(tanp) + vecUnit(c)*0.25f);
-
-						target_vector = tan_oberta * dotProduct(target_vector, tan_oberta);
-						target_position = this->position + target_vector;
+				if (lineCrossesLine(position, target_position, pointA, pointB)) {
+					if (collision) {
+						// Fuck it, we ain't moving
+						return;
 					}
-				}
-				// col.lisió amb les arestes, té problemes a les cantonades
-				//
-				// agafem el vector que va d'un punt a l'altre
-				// projectarem les coordenades d'un punt i l'altre
-				// sobre el vector, i també les del centre del jugador
-				// per saver si el centre del jugador està entre mig
-				sf::Vector2f axis = pointB - pointA;
-				sf::Vector2f axisUnit = vecUnit(axis);
-				float playerP = dotProduct(target_position, axis);
-				float segmentAp = dotProduct(pointA, axis);
-				float segmentBp = dotProduct(pointB, axis);
-				if ((between(playerP, segmentAp, segmentBp) &&
-						distanceLinePoint(pointA, pointB, target_position) < radius) ||
-						distancePointPoint(pointA, target_position) < radius ||
-						distancePointPoint(pointB, target_position) < radius) {
-					collision = true;
-					target_vector = axisUnit * dotProduct(target_vector, axisUnit);
-					target_position = this->position + target_vector;
+					lines_crossing.push_back(std::tuple<Point, Point>(pointA, pointB));
 				}
 			}
+			if (lines_crossing.empty()) {
+				continue;
+			}
+			bool passed_first = false;
+			float mindist;
+			Point closest;
+			std::tuple<Point, Point> col_line;
+			for (auto &line : lines_crossing) {
+				Point p1;
+				Point p2;
+				std::tie(p1, p2) = line;
+				Point c = lineLineIntersectionPoint(p1, p2, position, target_position);
+				float dist = distancePointPoint(position, c);
+				if (!passed_first || dist < mindist) {
+					mindist = dist;
+					closest = c;
+					col_line = line;
+					passed_first = true;
+				}
+			}
+			Point cp1, cp2;
+			std::tie(cp1, cp2) = col_line;
+			sf::Vector2f newdir = vecUnit(cp2 - cp1);
+			target_vector = newdir * dotProduct(target_vector, newdir);
+			////newdir = newdir * dotProduct(newdir, closest - position);
+			//target_vector = newdir * dotProduct(target_vector, newdir);
+			target_position = this->position + target_vector;
+			collision = true;
+			break;
+
 		}
-	} while (collision && i++ < (int)map.size()); // hacky!
+		if (!collision) break;
+	}
 
 	this->position = target_position;
-
 }
 

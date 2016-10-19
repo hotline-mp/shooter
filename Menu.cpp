@@ -9,7 +9,7 @@ Menu::Menu() {
 	}
 	text.setFont(font);
 	text.setCharacterSize(24);
-	text.setColor(sf::Color::Black);
+	text.setFillColor(sf::Color::Black);
 }
 
 void Menu::draw(sf::RenderWindow &window) {
